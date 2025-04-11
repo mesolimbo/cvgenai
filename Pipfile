@@ -6,9 +6,10 @@ name = "pypi"
 [packages]
 openai = "*"
 jinja2 = "*"
-weasyprint = "*"
 markdown2 = "*"
 python-dotenv = "*"
+weasyprint = "*"
+tomli = "*"
 
 [dev-packages]
 

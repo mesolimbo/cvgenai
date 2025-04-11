@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="cover-letter">
+    <header class="cover-header">
+      <div class="name-title-row">
+        <h1>{{ name }}</h1>
+        <p class="title">{{ title }}</p>
+      </div>
+      <div class="contact-info">
+        <p><a href="mailto:{{ email }}">{{ email }}</a></p>
+        <p>{{ phone }}</p>
+        <p><a href="https://{{ linkedin }}" target="_blank">{{ linkedin }}</a></p>
+        <p>{{ location }}</p>
+      </div>
+    </header>
+    
+    <div class="cover-body">
+      <p class="greeting">Dear {{ recipient | default("Hiring Manager") }},</p>
+      {{ content | safe }}
+    </div>
+    
+    <footer class="cover-footer">
+      <p>Sincerely,</p>
+      <p>{{ name }}</p>
+    </footer>
+  </div>
+</body>
+</html>

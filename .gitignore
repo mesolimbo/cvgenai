@@ -1,1 +1,19 @@
-/samples
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+
+# Virtual Environment
+venv/
+.venv/
+ENV/
+
+# Output directory
+output/
+
+# Temporary files
+.tmp/
+
+# Configuration files
+config.toml
