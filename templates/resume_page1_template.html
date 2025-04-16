@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Resume - Page 1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="document resume">
+    <!-- Shared Header (matches cover letter) -->
+    <header class="cover-header">
+      <div class="name-title-row">
+        <h1>{{ personal.name }}</h1>
+        <p class="title">{{ personal.title }}</p>
+      </div>
+      <div class="contact-info">
+        <p><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></p>
+        <p>{{ personal.phone }}</p>
+        <p><a href="https://{{ personal.linkedin }}" target="_blank">{{ personal.linkedin }}</a></p>
+        <p>{{ personal.location }}</p>
+      </div>
+    </header>
+    
+    <!-- Resume Body -->
+    <div class="resume-body">
+      <!-- SUMMARY Section -->
+      <section class="resume-section summary">
+        <h2>SUMMARY</h2>
+        <p>{{ resume.summary | safe }}</p>
+      </section>
+      
+      <!-- AREAS OF EXPERTISE Section (3 Columns) -->
+      <section class="resume-section areas-of-expertise">
+        <h2>AREAS OF EXPERTISE</h2>
+        <ul class="three-columns">
+          {% for expertise in resume.areas_of_expertise %}
+            <li>{{ expertise }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      
+      <!-- CAREER HIGHLIGHTS Section -->
+      <section class="resume-section career-highlights">
+        <h2>CAREER HIGHLIGHTS</h2>
+        <p>{{ resume.career_highlights | safe }}</p>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Resume - Page 2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="document resume">
+    <div class="resume-body">
+      <!-- RECENT PROFESSIONAL EXPERIENCE Section -->
+      <section class="resume-section professional-experience">
+        <h2>RECENT PROFESSIONAL EXPERIENCE</h2>
+        {% for job in resume.experience %}
+          <div class="job-entry">
+            <div class="job-columns">
+              <div class="job-col-left">
+                <span class="company">{{ job.company }}</span>
+                <span class="job-dates">{{ job.dates }}</span>
+              </div>
+              <div class="job-col-right">
+                <span class="job-title">{{ job.job_title }}</span>
+                <p class="job-description">{{ job.description | safe }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </section>
+      
+      <!-- EDUCATION Section -->
+      <section class="resume-section education">
+        <h2>EDUCATION</h2>
+        <p>{{ resume.education.education }}</p>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

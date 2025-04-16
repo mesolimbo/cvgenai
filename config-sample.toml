@@ -15,4 +15,77 @@ In my current role at [CURRENT COMPANY], I have developed and maintained multipl
 
 I am excited about the opportunity to bring my skills and experience to [COMPANY] and contribute to your innovative projects. I would welcome the opportunity to discuss how my background aligns with your needs.
 
-Thank you for considering my application.""" 
+Thank you for considering my application."""
+
+[resume]
+summary = '''Lead Software Developer with over 15 years of experience in defining technical vision, executing strategic initiatives, and managing complex development cycles to deliver cutting-edge web and mobile applications.
+
+- Adept at coordinating multidisciplinary teams to ensure timely project delivery and operational excellence.
+- Experienced in applying Agile methodologies and automation to optimize development processes and enhance product quality.
+- Proven track record in driving innovation and delivering scalable, high-performance solutions.
+- Dedicated to continuous improvement and technical excellence.'''
+
+areas_of_expertise = [
+  "Software Development & Architecture",
+  "Full Stack Development",
+  "Project Management",
+  "Agile Methodologies",
+  "Web App Development",
+  "API Development",
+  "DevOps & Release Management",
+  "User Interface Design",
+  "Change Management",
+  "Performance Optimization",
+  "Cloud Infrastructure",
+  "Quality Assurance",
+  "Continuous Integration",
+  "Data Analytics",
+  "Strategic Planning",
+  "Team Leadership"
+]
+
+career_highlights = '''- Spearheaded multiple software projects for clients including Fortune 500 companies, driving efficiency and innovation.
+- Led initiatives that reduced operational costs by over $1M through process improvements and automation.
+- Developed scalable systems that handled millions of transactions daily while ensuring robust security and reliability.
+- Implemented cutting-edge solutions that significantly enhanced user experience and product performance.
+- Directed cross-functional teams in delivering high-impact projects within tight deadlines.
+'''
+
+[[resume.experience]]
+company = "Tech Solutions Inc."
+job_title = "Lead Software Consultant"
+dates = "01/2020 – 04/2020"
+description = "Consulted on diverse software projects, delivering custom solutions and guiding development teams with modern web technologies."
+
+[[resume.experience]]
+company = "Secure Systems Ltd."
+job_title = "Senior Engineering Manager"
+dates = "02/2018 – 01/2020"
+description = "Oversaw multidisciplinary teams to develop scalable software for high-volume transaction environments and ensure robust system security."
+
+[[resume.experience]]
+company = "Social Media Hub"
+job_title = "Technical Lead Manager"
+dates = "04/2016 – 02/2018"
+description = "Directed release engineering and implemented productivity-enhancing tools, coordinating weekly software rollouts across platforms."
+
+[[resume.experience]]
+company = "Social Media Hub"
+job_title = "Mobile DevOps Engineer"
+dates = "11/2013 – 04/2016"
+description = "Managed mobile platform updates and led a development team to ensure seamless and reliable application deployments."
+
+[[resume.experience]]
+company = "Global Data Corp."
+job_title = "Senior Software Engineer"
+dates = "10/2008 – 09/2013"
+description = "Modernized legacy systems by developing distributed solutions and introducing automated deployment pipelines to streamline operations."
+
+[[resume.experience]]
+job_title = "Senior Application Developer"
+company = "Tech Media Group"
+dates = "08/2004 – 10/2008"
+description = "Revamped outdated web platforms into modern Java applications, establishing the foundation for a contemporary content management system."
+
+[resume.education]
+education = "Bachelor's Degree • University of Example • Sample City, ST"
