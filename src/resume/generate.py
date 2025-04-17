@@ -1,0 +1,229 @@
+from jinja2 import Environment, FileSystemLoader
+from weasyprint import HTML, CSS
+from pathlib import Path
+import shutil
+import tomli
+import argparse
+import re
+
+def load_config(config_path):
+    """Load configuration from TOML file."""
+    with open(config_path, 'rb') as f:
+        return tomli.load(f)
+
+def render_html(template_name, context):
+    """Render HTML using Jinja2 template."""
+    env = Environment(loader=FileSystemLoader('templates'))
+    template = env.get_template(template_name)
+    return template.render(context)
+
+def render_cover_letter_html(template_name, content, recipient, **kwargs):
+    """Render HTML using Jinja2 template for cover letter."""
+    env = Environment(loader=FileSystemLoader('templates'))
+    template = env.get_template(template_name)
+    
+    # Split content by double newlines and wrap each paragraph in p tags
+    paragraphs = content.strip().split('\n\n')
+    html_content = '\n'.join(f'<p>{p.strip()}</p>' for p in paragraphs)
+    
+    context = {
+        'content': html_content,
+        'recipient': recipient
+    }
+    context.update(kwargs)
+    return template.render(context)
+
+def generate_pdf(html_string, output_path):
+    """Generate PDF from HTML string using WeasyPrint."""
+    HTML(string=html_string).write_pdf(
+        output_path,
+        stylesheets=[CSS('templates/style.css')]
+    )
+
+def generate_pdf_from_multiple_html(html_strings, output_path):
+    """Generate a single PDF from multiple HTML strings using WeasyPrint."""
+    html_objs = [HTML(string=html) for html in html_strings]
+    # Use the first HTML as the base, append the rest as pages
+    base_doc = html_objs[0].render(stylesheets=[CSS('templates/style.css')])
+    for html_obj in html_objs[1:]:
+        doc = html_obj.render(stylesheets=[CSS('templates/style.css')])
+        base_doc.pages.extend(doc.pages)
+    base_doc.write_pdf(output_path)
+
+def save_html(html_string, output_path):
+    """Save HTML string to a file."""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_string)
+
+def copy_css(output_dir):
+    """Copy the CSS file to the output directory."""
+    css_source = Path('templates/style.css')
+    css_dest = output_dir / 'style.css'
+    shutil.copy2(css_source, css_dest)
+    return css_dest
+
+def split_intro_and_bullets(text, require_intro=True):
+    """Split a block of text into an intro and a list of bullet points.
+    If require_intro is False, treat all lines as bullets."""
+    lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
+    if not lines:
+        return ('', []) if require_intro else []
+    if require_intro:
+        intro = lines[0]
+        bullets = []
+        for line in lines[1:]:
+            if line.startswith('- '):
+                bullets.append(line[2:].strip())
+            elif line.startswith('• '):
+                bullets.append(line[2:].strip())
+            else:
+                bullets.append(line)
+        return intro, bullets
+    else:
+        bullets = []
+        for line in lines:
+            if line.startswith('- '):
+                bullets.append(line[2:].strip())
+            elif line.startswith('• '):
+                bullets.append(line[2:].strip())
+            else:
+                bullets.append(line)
+        return bullets
+
+def format_name_for_filename(name):
+    """Convert a person's name to a filename-friendly format.
+    Example: 'Jane Smith' becomes 'jane_smith'
+    """
+    # Replace spaces with underscores and make lowercase
+    formatted_name = name.strip().lower().replace(' ', '_')
+    # Remove any characters that aren't suitable for filenames
+    formatted_name = re.sub(r'[^\w_]', '', formatted_name)
+    return formatted_name
+
+def generate_resume(config, output_dir):
+    """Generate resume HTML and PDF files."""
+    # Copy CSS file to output directory
+    css_path = copy_css(output_dir)
+
+    # Get person's name for filenames
+    person_name = config.get('personal', {}).get('name', '')
+    name_prefix = format_name_for_filename(person_name)
+    if name_prefix:
+        name_prefix += "_"
+
+    # Prepare context for both pages
+    resume = config.get('resume', {})
+    summary_intro, summary_bullets = split_intro_and_bullets(resume.get('summary', ''), require_intro=True)
+    highlights_bullets = split_intro_and_bullets(resume.get('career_highlights', ''), require_intro=False)
+    context = {
+        'personal': config.get('personal', {}),
+        'resume': resume,
+        'summary_intro': summary_intro,
+        'summary_bullets': summary_bullets,
+        'highlights_bullets': highlights_bullets,
+    }
+
+    # Render Page 1
+    html_page1 = render_html('resume_page1_template.html', context)
+    html_path1 = output_dir / f'{name_prefix}resume_page1.html'
+    save_html(html_page1, html_path1)
+
+    # Render Page 2
+    html_page2 = render_html('resume_page2_template.html', context)
+    html_path2 = output_dir / f'{name_prefix}resume_page2.html'
+    save_html(html_page2, html_path2)
+
+    # Generate a single PDF with both pages
+    pdf_path = output_dir / f'{name_prefix}resume.pdf'
+    generate_pdf_from_multiple_html([html_page1, html_page2], pdf_path)
+    
+    # Create individual PDF files for each page
+    page1_pdf = output_dir / f'{name_prefix}resume_page1.pdf'
+    page2_pdf = output_dir / f'{name_prefix}resume_page2.pdf'
+    generate_pdf(html_page1, page1_pdf)
+    generate_pdf(html_page2, page2_pdf)
+
+    print(f"✅ Resume files generated for {person_name}:")
+    print(f"   - Page 1 HTML: {html_path1}")
+    print(f"   - Page 1 PDF: {page1_pdf}")
+    print(f"   - Page 2 HTML: {html_path2}")
+    print(f"   - Page 2 PDF: {page2_pdf}")
+    print(f"   - PDF (combined): {pdf_path}")
+    print(f"   - CSS: {css_path}")
+    
+    return {
+        'html_paths': [html_path1, html_path2],
+        'pdf_paths': [page1_pdf, page2_pdf, pdf_path],
+        'css_path': css_path
+    }
+
+def generate_cover_letter(config, output_dir):
+    """Generate cover letter HTML and PDF files."""
+    # Copy CSS file to output directory
+    css_path = copy_css(output_dir)
+
+    # Get person's name for filenames
+    person_name = config.get('personal', {}).get('name', '')
+    name_prefix = format_name_for_filename(person_name)
+    if name_prefix:
+        name_prefix += "_"
+
+    # Render the HTML using config values
+    html_content = render_cover_letter_html(
+        'cover_letter_template.html',
+        config['content']['cover_letter'],
+        config['content']['recipient'],
+        **config['personal']
+    )
+
+    # Save both HTML and PDF
+    html_path = output_dir / f'{name_prefix}cover_letter.html'
+    pdf_path = output_dir / f'{name_prefix}cover_letter.pdf'
+    
+    save_html(html_content, html_path)
+    generate_pdf(html_content, pdf_path)
+    
+    print(f"✅ Cover letter files generated for {person_name}:")
+    print(f"   - HTML: {html_path}")
+    print(f"   - PDF: {pdf_path}")
+    print(f"   - CSS: {css_path}")
+    
+    return {
+        'html_path': html_path,
+        'pdf_path': pdf_path,
+        'css_path': css_path
+    }
+
+def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Generate resume and/or cover letter')
+    parser.add_argument('--resume', action='store_true', help='Generate resume')
+    parser.add_argument('--cover-letter', action='store_true', help='Generate cover letter')
+    parser.add_argument('--config', default='config.toml', help='Path to the config file')
+    args = parser.parse_args()
+    
+    # Default to generating both if no specific option is selected
+    if not args.resume and not args.cover_letter:
+        args.resume = True
+        args.cover_letter = True
+    
+    # Load configuration
+    config = load_config(args.config)
+    
+    # Create output directory if it doesn't exist
+    output_dir = Path('output')
+    output_dir.mkdir(exist_ok=True)
+    
+    # Generate requested documents
+    results = {}
+    
+    if args.resume:
+        results['resume'] = generate_resume(config, output_dir)
+    
+    if args.cover_letter:
+        results['cover_letter'] = generate_cover_letter(config, output_dir)
+    
+    return results
+
+if __name__ == '__main__':
+    main()

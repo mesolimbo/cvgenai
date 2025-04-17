@@ -72,38 +72,49 @@
     margin: 0;
   }
   
-  /* Contact Info */
-  .contact-info {
+  /* Contact Info - New flexbox approach */
+  .contact-info-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-top: 2px solid #2f5aa0;
     padding-top: 0.5em;
+    font-size: 0.82em;
   }
   
-  .contact-info p {
-    position: relative;
-    margin: 0;
+  .contact-item {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
   }
   
-  .contact-info a {
+  .contact-item.left {
+    text-align: left;
+    padding-left: 0;
+  }
+  
+  .contact-item.right {
+    text-align: right;
+    padding-right: 0;
+  }
+  
+  .contact-divider {
+    width: 10px;
+    text-align: center;
+    color: #2f5aa0;
+    flex: 0 0 auto; /* Don't allow the divider to grow or shrink */
+  }
+  
+  .contact-item a {
     color: inherit;
     text-decoration: none;
   }
   
-  .contact-info a:hover {
+  .contact-item a:hover {
     text-decoration: underline;
-  }
-  
-  .contact-info p:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    right: -1em;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 1em;
-    width: 1px;
-    background-color: #2f5aa0;
   }
   
   /* ============================================
@@ -143,18 +154,18 @@
      ============================================ */
   .resume-body {
     margin-top: 0.5em;
-    font-size: 0.87em;  /* Decreased from 0.9em */
+    font-size: 0.88em; /* Adjusted font size for better fit */
   }
   
   .resume-section {
-    margin-bottom: 0.75em;  /* Slightly decreased */
+    margin-bottom: 0.8em;
   }
   
   .resume-section h2 {
     color: #2f5aa0;
     border-bottom: 1px solid #2f5aa0;
-    font-size: 1.05em;  /* Decreased from 1.08em */
-    margin-bottom: 0.32em;  /* Slightly decreased */
+    font-size: 1.05em;
+    margin-bottom: 0.35em;
     font-weight: normal;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -162,20 +173,20 @@
   
   .resume-section p,
   .resume-section ul {
-    margin: 0 0 0.5em 0;  /* Decreased from 0.58em */
+    margin: 0 0 0.5em 0;
     text-align: left;
   }
   
   .resume-section ul {
     list-style-type: disc;
-    margin-left: 0; /* Remove default left margin */
-    padding-left: 0; /* Remove default padding */
+    margin-left: 0;
+    padding-left: 0;
   }
   
   .resume-section li {
-    margin-bottom: 0.3em;  /* Decreased from 0.33em */
-    line-height: 1.4;  /* Decreased from 1.42 */
-    margin-left: 1.2em; /* Add margin to align bullets with the blue lines */
+    margin-bottom: 0.3em;
+    line-height: 1.4;
+    margin-left: 1.2em;
   }
   
   /* ============================================
@@ -183,37 +194,37 @@
      ============================================ */
   .three-columns {
     column-count: 3;
-    column-gap: 1.1em;  /* Decreased from 1.15em */
+    column-gap: 1.1em;
     text-align: left;
   }
   
   .three-columns li {
-    margin-bottom: 0.28em;  /* Decreased from 0.33em */
+    margin-bottom: 0.3em;
     break-inside: avoid-column;
-    font-size: 0.95em;  /* Decreased from 0.97em */
-    margin-left: 1.2em; /* Keep the same to maintain bullet alignment */
+    font-size: 0.95em;
+    margin-left: 1.2em;
   }
   
   /* ============================================
      JOB ENTRY STYLES (Page 2)
      ============================================ */
   .job-entry {
-    margin-bottom: 1.05em; /* Slightly increased from 1em */
+    margin-bottom: 1.05em;
   }
   
   .job-columns {
     display: table;
     width: 100%;
-    table-layout: fixed; /* Fixed table layout for more predictable column widths */
+    table-layout: fixed;
   }
   
   /* Left column (company & dates) */
   .job-col-left {
     display: table-cell;
-    width: 22%; /* Slightly smaller to ensure no overflow */
-    padding-right: 10px; /* Add some padding between columns */
+    width: 22%;
+    padding-right: 10px;
     vertical-align: top;
-    overflow-wrap: break-word; /* Force word wrapping */
+    overflow-wrap: break-word;
   }
   
   /* Right column (title & description) */
@@ -225,18 +236,18 @@
   
   /* Company name styling */
   .job-col-left .company {
-    color: #000; /* Changed from blue to black */
+    color: #000;
     display: block;
     margin-bottom: 0.3em;
-    overflow-wrap: break-word; /* Force word wrapping */
-    word-break: break-all; /* Extreme measure to break words if needed */
-    max-width: 100%; /* Contain within parent */
+    overflow-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
   }
   
   /* Date: now blue */
   .job-col-left .job-dates {
     font-size: 0.8em;
-    color: #2f5aa0;  /* Changed from black to blue */
+    color: #2f5aa0;
   }
   
   /* Right column: Title and description */
@@ -244,14 +255,14 @@
     font-weight: bold;
     color: #000;
     display: block;
-    margin-bottom: 0.25em; /* Slightly increased from 0.2em */
-    font-size: 1.02em; /* Slightly increased */
+    margin-bottom: 0.25em;
+    font-size: 1em;
   }
   
   .job-col-right .job-description {
     margin: 0;
     text-align: left;
-    line-height: 1.42; /* Consistent with other text */
+    line-height: 1.4;
   }
   
   /* ============================================

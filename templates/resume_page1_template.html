@@ -13,11 +13,23 @@
         <h1>{{ personal.name }}</h1>
         <p class="title">{{ personal.title }}</p>
       </div>
-      <div class="contact-info">
-        <p><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></p>
-        <p>{{ personal.phone }}</p>
-        <p><a href="https://{{ personal.linkedin }}" target="_blank">{{ personal.linkedin }}</a></p>
-        <p>{{ personal.location }}</p>
+      <!-- Simple contact info with proper width control -->
+      <div class="contact-info-container">
+        <div class="contact-item">
+          <a href="mailto:{{ personal.email }}">{{ personal.email }}</a>
+        </div>
+        <div class="contact-divider">|</div>
+        <div class="contact-item">
+          {{ personal.phone }}
+        </div>
+        <div class="contact-divider">|</div>
+        <div class="contact-item">
+          <a href="https://{{ personal.linkedin }}" target="_blank">{{ personal.linkedin }}</a>
+        </div>
+        <div class="contact-divider">|</div>
+        <div class="contact-item">
+          {{ personal.location }}
+        </div>
       </div>
     </header>
     
