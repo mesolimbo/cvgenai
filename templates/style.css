@@ -77,7 +77,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 2px solid #4285f4;
+    border-top: 2px solid #2f5aa0;
     padding-top: 0.5em;
   }
   
@@ -103,7 +103,7 @@
     transform: translateY(-50%);
     height: 1em;
     width: 1px;
-    background-color: #4285f4;
+    background-color: #2f5aa0;
   }
   
   /* ============================================
@@ -143,18 +143,18 @@
      ============================================ */
   .resume-body {
     margin-top: 0.5em;
-    font-size: 0.9em;  /* Slightly smaller body text for resumes */
+    font-size: 0.87em;  /* Decreased from 0.9em */
   }
   
   .resume-section {
-    margin-bottom: 1em;
+    margin-bottom: 0.75em;  /* Slightly decreased */
   }
   
   .resume-section h2 {
     color: #2f5aa0;
-    border-bottom: 1px solid #4285f4;
-    font-size: 1.1em;
-    margin-bottom: 0.4em;
+    border-bottom: 1px solid #2f5aa0;
+    font-size: 1.05em;  /* Decreased from 1.08em */
+    margin-bottom: 0.32em;  /* Slightly decreased */
     font-weight: normal;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -162,17 +162,20 @@
   
   .resume-section p,
   .resume-section ul {
-    margin: 0 0 0.8em 0;
+    margin: 0 0 0.5em 0;  /* Decreased from 0.58em */
     text-align: left;
   }
   
   .resume-section ul {
     list-style-type: disc;
-    margin-left: 1.5em;
+    margin-left: 0; /* Remove default left margin */
+    padding-left: 0; /* Remove default padding */
   }
   
   .resume-section li {
-    margin-bottom: 0.4em;
+    margin-bottom: 0.3em;  /* Decreased from 0.33em */
+    line-height: 1.4;  /* Decreased from 1.42 */
+    margin-left: 1.2em; /* Add margin to align bullets with the blue lines */
   }
   
   /* ============================================
@@ -180,50 +183,60 @@
      ============================================ */
   .three-columns {
     column-count: 3;
-    column-gap: 1.5em;
+    column-gap: 1.1em;  /* Decreased from 1.15em */
     text-align: left;
   }
   
   .three-columns li {
-    margin-bottom: 0.4em;
+    margin-bottom: 0.28em;  /* Decreased from 0.33em */
     break-inside: avoid-column;
+    font-size: 0.95em;  /* Decreased from 0.97em */
+    margin-left: 1.2em; /* Keep the same to maintain bullet alignment */
   }
   
   /* ============================================
      JOB ENTRY STYLES (Page 2)
      ============================================ */
   .job-entry {
-    margin-bottom: 1em;
+    margin-bottom: 1.05em; /* Slightly increased from 1em */
   }
   
   .job-columns {
-    display: flex;
-    gap: 1em;
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* Fixed table layout for more predictable column widths */
   }
   
-  /* Left column (1 part) */
+  /* Left column (company & dates) */
   .job-col-left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    display: table-cell;
+    width: 22%; /* Slightly smaller to ensure no overflow */
+    padding-right: 10px; /* Add some padding between columns */
+    vertical-align: top;
+    overflow-wrap: break-word; /* Force word wrapping */
   }
   
-  /* Right column (3 parts) */
+  /* Right column (title & description) */
   .job-col-right {
-    flex: 3;
+    display: table-cell;
+    width: 78%;
+    vertical-align: top;
   }
   
-  /* Company name: blue instead of bold */
+  /* Company name styling */
   .job-col-left .company {
-    color: #4285f4;  /* Blue color */
-    font-weight: normal;
+    color: #000; /* Changed from blue to black */
+    display: block;
     margin-bottom: 0.3em;
+    overflow-wrap: break-word; /* Force word wrapping */
+    word-break: break-all; /* Extreme measure to break words if needed */
+    max-width: 100%; /* Contain within parent */
   }
   
-  /* Date: now black */
+  /* Date: now blue */
   .job-col-left .job-dates {
     font-size: 0.8em;
-    color: #000;  /* Black color */
+    color: #2f5aa0;  /* Changed from black to blue */
   }
   
   /* Right column: Title and description */
@@ -231,12 +244,14 @@
     font-weight: bold;
     color: #000;
     display: block;
-    margin-bottom: 0.2em;
+    margin-bottom: 0.25em; /* Slightly increased from 0.2em */
+    font-size: 1.02em; /* Slightly increased */
   }
   
   .job-col-right .job-description {
     margin: 0;
     text-align: left;
+    line-height: 1.42; /* Consistent with other text */
   }
   
   /* ============================================
@@ -245,4 +260,3 @@
   h1, h2, h3 {
     color: #2f5aa0;
   }
-  

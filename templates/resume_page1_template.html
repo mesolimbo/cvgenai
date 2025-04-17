@@ -26,7 +26,14 @@
       <!-- SUMMARY Section -->
       <section class="resume-section summary">
         <h2>SUMMARY</h2>
-        <p>{{ resume.summary | safe }}</p>
+        <p>{{ summary_intro }}</p>
+        {% if summary_bullets %}
+        <ul>
+          {% for bullet in summary_bullets %}
+          <li>{{ bullet }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
       </section>
       
       <!-- AREAS OF EXPERTISE Section (3 Columns) -->
@@ -42,7 +49,11 @@
       <!-- CAREER HIGHLIGHTS Section -->
       <section class="resume-section career-highlights">
         <h2>CAREER HIGHLIGHTS</h2>
-        <p>{{ resume.career_highlights | safe }}</p>
+        <ul>
+          {% for highlight in highlights_bullets %}
+          <li>{{ highlight }}</li>
+          {% endfor %}
+        </ul>
       </section>
     </div>
   </div>
