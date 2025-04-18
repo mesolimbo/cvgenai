@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <title>{{ name }} Cover Letter</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,25 +19,28 @@
         </div>
         <div class="contact-divider">|</div>
         <div class="contact-item">
-          {{ phone }}
-        </div>
-        <div class="contact-divider">|</div>
-        <div class="contact-item">
           <a href="https://{{ linkedin }}" target="_blank">{{ linkedin }}</a>
         </div>
         <div class="contact-divider">|</div>
         <div class="contact-item">
           {{ location }}
         </div>
+        <div class="contact-divider">|</div>
+        <div class="contact-item">
+          {{ phone }}
+        </div>
       </div>
     </header>
     
     <div class="cover-body">
+      <br />
       <p class="greeting">Dear {{ recipient | default("Hiring Manager") }},</p>
+      <br />
       {{ content | safe }}
     </div>
     
     <footer class="cover-footer">
+      <br />
       <p>Sincerely,</p>
       <p>{{ name }}</p>
     </footer>

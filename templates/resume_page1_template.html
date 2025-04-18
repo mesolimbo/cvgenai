@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Resume - Page 1</title>
+  <title>{{ personal.name }} Resume</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,15 +20,15 @@
         </div>
         <div class="contact-divider">|</div>
         <div class="contact-item">
-          {{ personal.phone }}
-        </div>
-        <div class="contact-divider">|</div>
-        <div class="contact-item">
           <a href="https://{{ personal.linkedin }}" target="_blank">{{ personal.linkedin }}</a>
         </div>
         <div class="contact-divider">|</div>
         <div class="contact-item">
           {{ personal.location }}
+        </div>
+        <div class="contact-divider">|</div>
+        <div class="contact-item">
+          {{ personal.phone }}
         </div>
       </div>
     </header>

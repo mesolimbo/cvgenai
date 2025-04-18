@@ -55,13 +55,6 @@ def save_html(html_string, output_path):
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_string)
 
-def copy_css(output_dir):
-    """Copy the CSS file to the output directory."""
-    css_source = Path('templates/style.css')
-    css_dest = output_dir / 'style.css'
-    shutil.copy2(css_source, css_dest)
-    return css_dest
-
 def split_intro_and_bullets(text, require_intro=True):
     """Split a block of text into an intro and a list of bullet points.
     If require_intro is False, treat all lines as bullets."""
@@ -100,11 +93,20 @@ def format_name_for_filename(name):
     formatted_name = re.sub(r'[^\w_]', '', formatted_name)
     return formatted_name
 
-def generate_resume(config, output_dir):
-    """Generate resume HTML and PDF files."""
-    # Copy CSS file to output directory
-    css_path = copy_css(output_dir)
+def copy_css(output_dir):
+    """Copy the CSS file to the output directory."""
+    css_source = Path('templates/style.css')
+    css_dest = output_dir / 'style.css'
+    shutil.copy2(css_source, css_dest)
+    return css_dest
 
+def generate_resume(config, output_dir, generate_html=False):
+    """Generate resume HTML and PDF files."""
+    # Copy CSS file to output directory only if HTML is enabled
+    css_path = None
+    if generate_html:
+        css_path = copy_css(output_dir)
+    
     # Get person's name for filenames
     person_name = config.get('personal', {}).get('name', '')
     name_prefix = format_name_for_filename(person_name)
@@ -126,42 +128,45 @@ def generate_resume(config, output_dir):
     # Render Page 1
     html_page1 = render_html('resume_page1_template.html', context)
     html_path1 = output_dir / f'{name_prefix}resume_page1.html'
-    save_html(html_page1, html_path1)
+    if generate_html:
+        save_html(html_page1, html_path1)
 
     # Render Page 2
     html_page2 = render_html('resume_page2_template.html', context)
     html_path2 = output_dir / f'{name_prefix}resume_page2.html'
-    save_html(html_page2, html_path2)
+    if generate_html:
+        save_html(html_page2, html_path2)
 
     # Generate a single PDF with both pages
     pdf_path = output_dir / f'{name_prefix}resume.pdf'
     generate_pdf_from_multiple_html([html_page1, html_page2], pdf_path)
     
-    # Create individual PDF files for each page
-    page1_pdf = output_dir / f'{name_prefix}resume_page1.pdf'
-    page2_pdf = output_dir / f'{name_prefix}resume_page2.pdf'
-    generate_pdf(html_page1, page1_pdf)
-    generate_pdf(html_page2, page2_pdf)
+    # We no longer generate individual page PDFs
+    # page1_pdf = output_dir / f'{name_prefix}resume_page1.pdf'
+    # page2_pdf = output_dir / f'{name_prefix}resume_page2.pdf'
+    # generate_pdf(html_page1, page1_pdf)
+    # generate_pdf(html_page2, page2_pdf)
 
     print(f"✅ Resume files generated for {person_name}:")
-    print(f"   - Page 1 HTML: {html_path1}")
-    print(f"   - Page 1 PDF: {page1_pdf}")
-    print(f"   - Page 2 HTML: {html_path2}")
-    print(f"   - Page 2 PDF: {page2_pdf}")
-    print(f"   - PDF (combined): {pdf_path}")
-    print(f"   - CSS: {css_path}")
+    if generate_html:
+        print(f"   - Page 1 HTML: {html_path1}")
+        print(f"   - Page 2 HTML: {html_path2}")
+        print(f"   - CSS: {css_path}")
+    print(f"   - PDF: {pdf_path}")
     
     return {
-        'html_paths': [html_path1, html_path2],
-        'pdf_paths': [page1_pdf, page2_pdf, pdf_path],
-        'css_path': css_path
+        'html_paths': [html_path1, html_path2] if generate_html else [],
+        'pdf_paths': [pdf_path],
+        'css_path': css_path if generate_html else None
     }
 
-def generate_cover_letter(config, output_dir):
+def generate_cover_letter(config, output_dir, generate_html=False):
     """Generate cover letter HTML and PDF files."""
-    # Copy CSS file to output directory
-    css_path = copy_css(output_dir)
-
+    # Copy CSS file to output directory only if HTML is enabled
+    css_path = None
+    if generate_html:
+        css_path = copy_css(output_dir)
+    
     # Get person's name for filenames
     person_name = config.get('personal', {}).get('name', '')
     name_prefix = format_name_for_filename(person_name)
@@ -180,18 +185,20 @@ def generate_cover_letter(config, output_dir):
     html_path = output_dir / f'{name_prefix}cover_letter.html'
     pdf_path = output_dir / f'{name_prefix}cover_letter.pdf'
     
-    save_html(html_content, html_path)
+    if generate_html:
+        save_html(html_content, html_path)
     generate_pdf(html_content, pdf_path)
     
     print(f"✅ Cover letter files generated for {person_name}:")
-    print(f"   - HTML: {html_path}")
+    if generate_html:
+        print(f"   - HTML: {html_path}")
+        print(f"   - CSS: {css_path}")
     print(f"   - PDF: {pdf_path}")
-    print(f"   - CSS: {css_path}")
     
     return {
-        'html_path': html_path,
+        'html_path': html_path if generate_html else None,
         'pdf_path': pdf_path,
-        'css_path': css_path
+        'css_path': css_path if generate_html else None
     }
 
 def main():
@@ -199,6 +206,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate resume and/or cover letter')
     parser.add_argument('--resume', action='store_true', help='Generate resume')
     parser.add_argument('--cover-letter', action='store_true', help='Generate cover letter')
+    parser.add_argument('--html', action='store_true', help='Generate HTML versions of files')
     parser.add_argument('--config', default='config.toml', help='Path to the config file')
     args = parser.parse_args()
     
@@ -218,10 +226,10 @@ def main():
     results = {}
     
     if args.resume:
-        results['resume'] = generate_resume(config, output_dir)
+        results['resume'] = generate_resume(config, output_dir, generate_html=args.html)
     
     if args.cover_letter:
-        results['cover_letter'] = generate_cover_letter(config, output_dir)
+        results['cover_letter'] = generate_cover_letter(config, output_dir, generate_html=args.html)
     
     return results
 
