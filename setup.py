@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 setup(
     name="cvgenai",
     version="0.1.0",
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
+    packages=find_packages(where="cvgenai"),
+    package_dir={"": "cvgenai"},
     install_requires=[
         "jinja2",
         "weasyprint",
