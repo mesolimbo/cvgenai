@@ -82,6 +82,12 @@ resume.bat --config my-other-config.toml
 ## Project Structure
 
 - **`config.toml`**: Your personal resume and cover letter information
+- **`cvgenai/`**: Main package
+  - **`run.py`**: Main entry point and CLI functionality
+  - **`config/`**: Configuration handling
+    - **`toml.py`**: TOML configuration loading
+  - **`resume/`**: Resume and cover letter generation 
+    - **`generate.py`**: Document generation functions
 - **`templates/`**: Contains HTML templates and CSS styles
   - `cover_letter_template.html`: Template for cover letters
   - `resume_page1_template.html`: Template for resume page 1
