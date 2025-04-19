@@ -7,8 +7,9 @@ A tool for generating professional resumes and cover letters in PDF and HTML for
 - Generate professional resumes with a consistent, two-page layout
 - Generate matching cover letters
 - Produce both PDF and HTML output formats
-- Customize content via TOML configuration
+- Customize content via TOML resume document
 - Support for multiple profiles/people
+- SOLID design principles for maintainability and extensibility
 
 ## Installation
 
@@ -19,23 +20,19 @@ A tool for generating professional resumes and cover letters in PDF and HTML for
 
 ### Setup
 
-1. Clone this repository:
-   ```bash
-   git clone <repository-url>
-   cd cvgenai
-   ```
+1. Clone this repository
 
 2. Install dependencies with pipenv:
    ```bash
-   pipenv install
+   pipenv install --dev
    ```
 
-3. Create your configuration:
+3. Create your personal resume content document:
    ```bash
-   cp config-sample.toml config.toml
+   cp resume-sample.toml resume.toml
    ```
 
-4. Edit the `config.toml` file with your personal information, work experience, and other details.
+4. Edit the `resume.toml` file with your personal information, work experience, and other resume details.
 
 ## Usage
 
@@ -43,14 +40,8 @@ A tool for generating professional resumes and cover letters in PDF and HTML for
 
 Generate both resume and cover letter (PDF only):
 
-**Windows**:
-```
-resume.bat
-```
-
-**Unix/Linux/Mac**:
-```
-./resume.sh
+```bash
+./run.sh
 ```
 
 ### Command Line Options
@@ -60,34 +51,44 @@ resume.bat
 | `--resume` | Generate only the resume |
 | `--cover-letter` | Generate only the cover letter |
 | `--html` | Generate HTML versions in addition to PDFs |
-| `--config PATH` | Specify an alternative config file (default: `config.toml`) |
+| `--content PATH` | Specify an alternative resume content file (default: `resume.toml`) |
 
 ### Examples
 
 Generate only the resume:
-```
-resume.bat --resume
+```bash
+run.sh --resume
 ```
 
 Generate both resume and cover letter with HTML versions:
-```
-resume.bat --resume --cover-letter --html
+```bash
+run.sh --resume --cover-letter --html
 ```
 
-Use a specific configuration file:
-```
-resume.bat --config my-other-config.toml
+Use an alternate content file:
+```bash
+run.sh --content my-other-resume.toml
 ```
 
 ## Project Structure
 
-- **`config.toml`**: Your personal resume and cover letter information
+- **`resume.toml`**: Your personal resume and cover letter information
 - **`cvgenai/`**: Main package
-  - **`run.py`**: Main entry point and CLI functionality
+  - **`cli.py`**: Command-line interface functionality
+  - **`run.py`**: Helper entry point that delegates to cli.py
   - **`config/`**: Configuration handling
-    - **`toml.py`**: TOML configuration loading
+    - **`toml.py`**: TOML configuration loading via ConfigManager
+  - **`core/`**: Core domain entities
+    - **`document.py`**: Document abstractions and implementations
   - **`resume/`**: Resume and cover letter generation 
-    - **`generate.py`**: Document generation functions
+    - **`generate.py`**: Document generator classes
+  - **`services/`**: Independent service classes
+    - **`file_service.py`**: File operations service
+    - **`html_service.py`**: HTML generation service
+    - **`pdf_service.py`**: PDF generation service
+  - **`templating/`**: Template rendering
+    - **`renderer.py`**: Template renderer interface and implementations
+  - **`utils/`**: General utility functions
 - **`templates/`**: Contains HTML templates and CSS styles
   - `cover_letter_template.html`: Template for cover letters
   - `resume_page1_template.html`: Template for resume page 1
@@ -112,17 +113,25 @@ You can modify the templates in the `templates/` directory to customize the appe
 
 Edit the `templates/style.css` file to customize the styling of your documents.
 
-### Configuration
+### Content
 
-The `config.toml` file contains all the content for your resume and cover letter. You can create multiple configuration files for different job applications or different people.
+The `resume.toml` file contains all the content for your resume and cover letter. You can create multiple content files for different job applications, different roles, or different people.
+
+## Extending the Project
+
+Thanks to the SOLID architecture, you can easily extend the project:
+
+1. **Add new document types**: Create a new class that extends the `Document` base class
+2. **Add new output formats**: Create a new service class and implement the appropriate interface
+3. **Change the templating engine**: Create a new class that implements the `ITemplateRenderer` interface
 
 ## Tips
 
 - Keep each bullet point in your experience and education sections concise for better formatting
 - Use the `--html` option during development to quickly preview changes in a web browser
-- Create multiple config files for different job applications (e.g., `config-dev.toml`, `config-manager.toml`)
-- For multiple people, use separate configuration files and specify with `--config`
+- Create multiple content files for different job applications (e.g., `resume-dev.toml`, `resume-manager.toml`)
+- For multiple people, use separate content files and specify with `--content`
 
 ## License
 
-[Specify license information here]
+[Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)

@@ -1,5 +1,5 @@
-"""Resume generation package."""
+"""Resume generation module for CV Gen AI."""
 
-from .generate import generate_resume, generate_cover_letter
+from .generate import ResumeGenerator, CoverLetterGenerator
 
-__all__ = ["generate_resume", "generate_cover_letter"]
+__all__ = ["ResumeGenerator", "CoverLetterGenerator"]

@@ -1,11 +1,38 @@
-"""TOML configuration loader for CV Gen AI."""
+"""TOML configuration manager for CV Gen AI."""
 
 import tomli
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 
+class IConfigLoader(ABC):
+    """Interface for configuration loaders."""
+    
+    @abstractmethod
+    def load(self, config_path):
+        """Load configuration from a file path."""
+        pass
+
+
+class ConfigManager(IConfigLoader):
+    """TOML configuration manager."""
+    
+    def load(self, config_path):
+        """Load configuration from TOML file.
+        
+        Args:
+            config_path: Path to the TOML configuration file
+            
+        Returns:
+            dict: Loaded configuration
+        """
+        with open(config_path, 'rb') as f:
+            return tomli.load(f)
+
+
+# Legacy function for backward compatibility
 def load_config(config_path):
-    """Load configuration from TOML file.
+    """Load configuration from TOML file (legacy function).
     
     Args:
         config_path: Path to the TOML configuration file
@@ -13,5 +40,4 @@ def load_config(config_path):
     Returns:
         dict: Loaded configuration
     """
-    with open(config_path, 'rb') as f:
-        return tomli.load(f)
+    return ConfigManager().load(config_path)

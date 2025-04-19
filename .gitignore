@@ -16,4 +16,4 @@ output/
 .tmp/
 
 # Configuration files
-config.toml
+resume.toml

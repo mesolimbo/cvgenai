@@ -1,195 +1,146 @@
-from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML, CSS
 from pathlib import Path
-import shutil
-import re
+from ..core.document import ResumeDocument, CoverLetterDocument
 
-def render_html(template_name, context):
-    """Render HTML using Jinja2 template."""
-    env = Environment(loader=FileSystemLoader('templates'))
-    template = env.get_template(template_name)
-    return template.render(context)
 
-def render_cover_letter_html(template_name, content, recipient, **kwargs):
-    """Render HTML using Jinja2 template for cover letter."""
-    env = Environment(loader=FileSystemLoader('templates'))
-    template = env.get_template(template_name)
+class DocumentGenerator:
+    """Base class for document generators."""
     
-    # Split content by double newlines and wrap each paragraph in p tags
-    paragraphs = content.strip().split('\n\n')
-    html_content = '\n'.join(f'<p>{p.strip()}</p>' for p in paragraphs)
+    def __init__(self, document, renderer, pdf_service, html_service, file_service):
+        """Initialize the document generator with dependencies.
+        
+        Args:
+            document: Document object that provides the context and templates
+            renderer: Template renderer service
+            pdf_service: PDF generation service
+            html_service: HTML handling service
+            file_service: File operations service
+        """
+        self.document = document
+        self.renderer = renderer
+        self.pdf_service = pdf_service
+        self.html_service = html_service
+        self.file_service = file_service
+        
+    def _get_name_prefix(self, config):
+        """Get formatted name prefix for filenames."""
+        person_name = config.get('personal', {}).get('name', '')
+        name_prefix = self.document.format_name_for_filename(person_name)
+        if name_prefix:
+            name_prefix += "_"
+        return name_prefix, person_name
+
+
+class ResumeGenerator(DocumentGenerator):
+    """Resume document generator."""
     
-    context = {
-        'content': html_content,
-        'recipient': recipient
-    }
-    context.update(kwargs)
-    return template.render(context)
-
-def generate_pdf(html_string, output_path):
-    """Generate PDF from HTML string using WeasyPrint."""
-    HTML(string=html_string).write_pdf(
-        output_path,
-        stylesheets=[CSS('templates/style.css')]
-    )
-
-def generate_pdf_from_multiple_html(html_strings, output_path):
-    """Generate a single PDF from multiple HTML strings using WeasyPrint."""
-    html_objs = [HTML(string=html) for html in html_strings]
-    # Use the first HTML as the base, append the rest as pages
-    base_doc = html_objs[0].render(stylesheets=[CSS('templates/style.css')])
-    for html_obj in html_objs[1:]:
-        doc = html_obj.render(stylesheets=[CSS('templates/style.css')])
-        base_doc.pages.extend(doc.pages)
-    base_doc.write_pdf(output_path)
-
-def save_html(html_string, output_path):
-    """Save HTML string to a file."""
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(html_string)
-
-def split_intro_and_bullets(text, require_intro=True):
-    """Split a block of text into an intro and a list of bullet points.
-    If require_intro is False, treat all lines as bullets."""
-    lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
-    if not lines:
-        return ('', []) if require_intro else []
-    if require_intro:
-        intro = lines[0]
-        bullets = []
-        for line in lines[1:]:
-            if line.startswith('- '):
-                bullets.append(line[2:].strip())
-            elif line.startswith('• '):
-                bullets.append(line[2:].strip())
-            else:
-                bullets.append(line)
-        return intro, bullets
-    else:
-        bullets = []
-        for line in lines:
-            if line.startswith('- '):
-                bullets.append(line[2:].strip())
-            elif line.startswith('• '):
-                bullets.append(line[2:].strip())
-            else:
-                bullets.append(line)
-        return bullets
-
-def format_name_for_filename(name):
-    """Convert a person's name to a filename-friendly format.
-    Example: 'Jane Smith' becomes 'jane_smith'
-    """
-    # Replace spaces with underscores and make lowercase
-    formatted_name = name.strip().lower().replace(' ', '_')
-    # Remove any characters that aren't suitable for filenames
-    formatted_name = re.sub(r'[^\w_]', '', formatted_name)
-    return formatted_name
-
-def copy_css(output_dir):
-    """Copy the CSS file to the output directory."""
-    css_source = Path('templates/style.css')
-    css_dest = output_dir / 'style.css'
-    shutil.copy2(css_source, css_dest)
-    return css_dest
-
-def generate_resume(config, output_dir, generate_html=False):
-    """Generate resume HTML and PDF files."""
-    # Copy CSS file to output directory only if HTML is enabled
-    css_path = None
-    if generate_html:
-        css_path = copy_css(output_dir)
+    def __init__(self, renderer, pdf_service, html_service, file_service):
+        """Initialize with dependencies."""
+        super().__init__(ResumeDocument(), renderer, pdf_service, html_service, file_service)
     
-    # Get person's name for filenames
-    person_name = config.get('personal', {}).get('name', '')
-    name_prefix = format_name_for_filename(person_name)
-    if name_prefix:
-        name_prefix += "_"
+    def generate(self, config, output_dir, generate_html=False):
+        """Generate resume HTML and PDF files.
+        
+        Args:
+            config: Configuration dictionary
+            output_dir: Output directory path
+            generate_html: Whether to generate HTML files
+            
+        Returns:
+            dict: Paths to generated files
+        """
+        # Prepare for file generation
+        name_prefix, person_name = self._get_name_prefix(config)
+        css_path = None
+        if generate_html:
+            css_path = self.file_service.copy_css('templates/style.css', output_dir)
+        
+        # Get context and template names
+        context = self.document.prepare_context(config)
+        template_names = self.document.get_template_names()
+        
+        # Render HTML content
+        html_contents = [
+            self.renderer.render(template_name, context)
+            for template_name in template_names
+        ]
+        
+        # Save HTML files if requested
+        html_paths = []
+        if generate_html:
+            for i, html_content in enumerate(html_contents):
+                html_path = output_dir / f'{name_prefix}resume_page{i+1}.html'
+                self.html_service.save_html(html_content, str(html_path))  # Convert Path to string
+                html_paths.append(html_path)
+                print(f"   - HTML Page {i+1}: {html_path}")
+        
+        # Generate combined PDF
+        pdf_path = output_dir / f'{name_prefix}resume.pdf'
+        self.pdf_service.generate_pdf_from_multiple_html(html_contents, str(pdf_path))  # Convert Path to string
+        
+        # Print confirmation
+        print(f"✅ Resume files generated for {person_name}:")
+        if generate_html:
+            if css_path:
+                print(f"   - CSS: {css_path}")
+        print(f"   - PDF: {pdf_path}")
+        
+        return {
+            'html_paths': html_paths if generate_html else [],
+            'pdf_paths': [pdf_path],
+            'css_path': css_path
+        }
 
-    # Prepare context for both pages
-    resume = config.get('resume', {})
-    summary_intro, summary_bullets = split_intro_and_bullets(resume.get('summary', ''), require_intro=True)
-    highlights_bullets = split_intro_and_bullets(resume.get('career_highlights', ''), require_intro=False)
-    context = {
-        'personal': config.get('personal', {}),
-        'resume': resume,
-        'summary_intro': summary_intro,
-        'summary_bullets': summary_bullets,
-        'highlights_bullets': highlights_bullets,
-    }
 
-    # Render Page 1
-    html_page1 = render_html('resume_page1_template.html', context)
-    html_path1 = output_dir / f'{name_prefix}resume_page1.html'
-    if generate_html:
-        save_html(html_page1, html_path1)
-
-    # Render Page 2
-    html_page2 = render_html('resume_page2_template.html', context)
-    html_path2 = output_dir / f'{name_prefix}resume_page2.html'
-    if generate_html:
-        save_html(html_page2, html_path2)
-
-    # Generate a single PDF with both pages
-    pdf_path = output_dir / f'{name_prefix}resume.pdf'
-    generate_pdf_from_multiple_html([html_page1, html_page2], pdf_path)
+class CoverLetterGenerator(DocumentGenerator):
+    """Cover letter document generator."""
     
-    # We no longer generate individual page PDFs
-    # page1_pdf = output_dir / f'{name_prefix}resume_page1.pdf'
-    # page2_pdf = output_dir / f'{name_prefix}resume_page2.pdf'
-    # generate_pdf(html_page1, page1_pdf)
-    # generate_pdf(html_page2, page2_pdf)
-
-    print(f"✅ Resume files generated for {person_name}:")
-    if generate_html:
-        print(f"   - Page 1 HTML: {html_path1}")
-        print(f"   - Page 2 HTML: {html_path2}")
-        print(f"   - CSS: {css_path}")
-    print(f"   - PDF: {pdf_path}")
-    
-    return {
-        'html_paths': [html_path1, html_path2] if generate_html else [],
-        'pdf_paths': [pdf_path],
-        'css_path': css_path if generate_html else None
-    }
-
-def generate_cover_letter(config, output_dir, generate_html=False):
-    """Generate cover letter HTML and PDF files."""
-    # Copy CSS file to output directory only if HTML is enabled
-    css_path = None
-    if generate_html:
-        css_path = copy_css(output_dir)
-    
-    # Get person's name for filenames
-    person_name = config.get('personal', {}).get('name', '')
-    name_prefix = format_name_for_filename(person_name)
-    if name_prefix:
-        name_prefix += "_"
-
-    # Render the HTML using config values
-    html_content = render_cover_letter_html(
-        'cover_letter_template.html',
-        config['content']['cover_letter'],
-        config['content']['recipient'],
-        **config['personal']
-    )
-
-    # Save both HTML and PDF
-    html_path = output_dir / f'{name_prefix}cover_letter.html'
-    pdf_path = output_dir / f'{name_prefix}cover_letter.pdf'
-    
-    if generate_html:
-        save_html(html_content, html_path)
-    generate_pdf(html_content, pdf_path)
-    
-    print(f"✅ Cover letter files generated for {person_name}:")
-    if generate_html:
-        print(f"   - HTML: {html_path}")
-        print(f"   - CSS: {css_path}")
-    print(f"   - PDF: {pdf_path}")
-    
-    return {
-        'html_path': html_path if generate_html else None,
-        'pdf_path': pdf_path,
-        'css_path': css_path if generate_html else None
-    }
+    def __init__(self, renderer, pdf_service, html_service, file_service):
+        """Initialize with dependencies."""
+        super().__init__(CoverLetterDocument(), renderer, pdf_service, html_service, file_service)
+        
+    def generate(self, config, output_dir, generate_html=False):
+        """Generate cover letter HTML and PDF files.
+        
+        Args:
+            config: Configuration dictionary
+            output_dir: Output directory path
+            generate_html: Whether to generate HTML files
+            
+        Returns:
+            dict: Paths to generated files
+        """
+        # Prepare for file generation
+        name_prefix, person_name = self._get_name_prefix(config)
+        css_path = None
+        if generate_html:
+            css_path = self.file_service.copy_css('templates/style.css', output_dir)
+        
+        # Get context and template name
+        context = self.document.prepare_context(config)
+        template_name = self.document.get_template_names()[0]  # Cover letter has only one template
+        
+        # Render HTML content
+        html_content = self.renderer.render(template_name, context)
+        
+        # Save HTML file if requested
+        html_path = None
+        if generate_html:
+            html_path = output_dir / f'{name_prefix}cover_letter.html'
+            self.html_service.save_html(html_content, str(html_path))  # Convert Path to string
+            print(f"   - HTML: {html_path}")
+        
+        # Generate PDF
+        pdf_path = output_dir / f'{name_prefix}cover_letter.pdf'
+        self.pdf_service.generate_pdf(html_content, str(pdf_path))  # Convert Path to string
+        
+        # Print confirmation
+        print(f"✅ Cover letter files generated for {person_name}:")
+        if generate_html and css_path:
+            print(f"   - CSS: {css_path}")
+        print(f"   - PDF: {pdf_path}")
+        
+        return {
+            'html_path': html_path,
+            'pdf_path': pdf_path,
+            'css_path': css_path
+        }
