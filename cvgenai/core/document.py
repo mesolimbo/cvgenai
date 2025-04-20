@@ -1,7 +1,6 @@
 """Abstract document classes for CV Generation."""
 
 from abc import ABC, abstractmethod
-from pathlib import Path
 import re
 
 
@@ -18,7 +17,8 @@ class Document(ABC):
         """Get the template names for this document."""
         pass
     
-    def format_name_for_filename(self, name):
+    @staticmethod
+    def format_name_for_filename(name):
         """Convert a person's name to a filename-friendly format.
         Example: 'Jane Smith' becomes 'jane_smith'
         """
@@ -53,8 +53,9 @@ class ResumeDocument(Document):
         }
         
         return context
-    
-    def _split_intro_and_bullets(self, text, require_intro=True):
+
+    @staticmethod
+    def _split_intro_and_bullets(text, require_intro=True):
         """Split a block of text into an intro and a list of bullet points.
         If require_intro is False, treat all lines as bullets."""
         lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
@@ -96,8 +97,9 @@ class CoverLetterDocument(Document):
         }
         
         return context
-    
-    def _format_content_as_html(self, content):
+
+    @staticmethod
+    def _format_content_as_html(content):
         """Format cover letter content as HTML paragraphs."""
         paragraphs = content.strip().split('\n\n')
         html_content = '\n'.join(f'<p>{p.strip()}</p>' for p in paragraphs)

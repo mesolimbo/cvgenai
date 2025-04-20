@@ -5,8 +5,9 @@ from pathlib import Path
 
 class HTMLService:
     """Service for handling HTML content."""
-    
-    def save_html(self, html_content, output_path):
+
+    @staticmethod
+    def save_html(html_content, output_path):
         """Save HTML string to a file.
         
         Args:

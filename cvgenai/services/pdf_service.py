@@ -1,6 +1,5 @@
 """PDF generation service for CV Generation."""
 
-from pathlib import Path
 from weasyprint import HTML, CSS
 
 

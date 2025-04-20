@@ -1,7 +1,6 @@
 """Command-line interface for CV Gen AI."""
 
 import argparse
-from pathlib import Path
 import sys
 
 from config import ConfigManager
