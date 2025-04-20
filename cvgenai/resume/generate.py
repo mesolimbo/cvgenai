@@ -1,5 +1,5 @@
 from pathlib import Path
-from ..core.document import ResumeDocument, CoverLetterDocument
+from core.document import ResumeDocument, CoverLetterDocument
 
 
 class DocumentGenerator:

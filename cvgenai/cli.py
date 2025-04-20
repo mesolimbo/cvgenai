@@ -4,12 +4,12 @@ import argparse
 from pathlib import Path
 import sys
 
-from .config import ConfigManager
-from .templating import Jinja2Renderer
-from .services.pdf_service import PDFService
-from .services.html_service import HTMLService
-from .services.file_service import FileService
-from .resume import ResumeGenerator, CoverLetterGenerator
+from config import ConfigManager
+from templating import Jinja2Renderer
+from services.pdf_service import PDFService
+from services.html_service import HTMLService
+from services.file_service import FileService
+from resume import ResumeGenerator, CoverLetterGenerator
 
 
 def parse_arguments():
@@ -110,3 +110,6 @@ def main():
             print(f"Cover Letter HTML: {html_path}")
     
     return results
+
+if __name__ == '__main__':
+    main()
