@@ -1,114 +1,94 @@
 """Command-line interface for CV Gen AI."""
 
-import argparse
 import sys
+import os
 
-from config import ConfigManager
-from templating import Jinja2Renderer
-from services.pdf_service import PDFService
-from services.html_service import HTMLService
-from services.file_service import FileService
-from resume import ResumeGenerator, CoverLetterGenerator
-
-
-def parse_arguments():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Generate resume and/or cover letter')
-    parser.add_argument('--resume', action='store_true', help='Generate resume')
-    parser.add_argument('--cover-letter', action='store_true', help='Generate cover letter')
-    parser.add_argument('--html', action='store_true', help='Generate HTML versions of files')
-    parser.add_argument('--content', default='resume.toml', help='Path to the resume content file')
-    return parser.parse_args()
+from factory import Factory
 
 
 def main():
     """Parse command line arguments and run document generation."""
-    # Parse command line arguments
-    args = parse_arguments()
+    # Initialize factory with app config from environment or default path
+    config_path = os.environ.get('APP_CONFIG_PATH', 'app_config.toml')
+    factory = Factory(config_path)
     
-    # Default to generating both if no specific option is selected
-    if not args.resume and not args.cover_letter:
-        args.resume = True
-        args.cover_letter = True
+    # Set up argument parser from configuration
+    parser = factory.setup_argument_parser()
+    args = parser.parse_args()
+    
+    # Determine which generators to run based on args and config
+    generators_to_run = factory.get_generators_to_run(args)
+    enabled_generators = factory.get_enabled_generators()
     
     # Print a message about what's being generated
     print("Generating documents with the following options:")
-    if args.resume:
-        print("- Resume")
-    if args.cover_letter:
-        print("- Cover Letter")
-    if args.html:
+    for generator_name in generators_to_run:
+        generator_config = next((gen for gen in enabled_generators if gen['name'] == generator_name), None)
+        if generator_config:
+            print(f"- {generator_config['description']}")
+    
+    if hasattr(args, 'html') and args.html:
         print("- HTML versions (generate_html=True)")
     else:
         print("- PDF only (generate_html=False)")
-    print(f"Using configuration from: {args.content}")
+    
+    # Get content path from args (using the dynamic name from config)
+    content_arg = factory.app_config.get('cli', {}).get('content_path_arg', 'content')
+    content_path = getattr(args, content_arg)
+    print(f"Using content from: {content_path}")
     print("---")
     
-    # Initialize services using dependency injection pattern
-    config_manager = ConfigManager()
-    renderer = Jinja2Renderer()
-    pdf_service = PDFService()
-    html_service = HTMLService()
-    file_service = FileService()
-    
-    # Load configuration
+    # Load content configuration
+    config_manager = factory.get_service('config_manager')
     try:
-        config = config_manager.load(args.content)
+        content_config = config_manager.load(content_path)
     except FileNotFoundError:
-        print(f"Error: Configuration file '{args.content}' not found.")
+        print(f"Error: Configuration file '{content_path}' not found.")
         sys.exit(1)
     except Exception as e:
         print(f"Error loading configuration: {e}")
         sys.exit(1)
     
     # Create output directory if it doesn't exist
+    file_service = factory.get_service('file_service')
     output_dir = file_service.ensure_directory('output')
     
     # Generate requested documents
     results = {}
     
-    if args.resume:
-        print(f"\nCreating resume generator with generate_html={args.html}")
-        resume_generator = ResumeGenerator(
-            renderer=renderer, 
-            pdf_service=pdf_service,
-            html_service=html_service,
-            file_service=file_service
-        )
-        results['resume'] = resume_generator.generate(
-            config=config, 
-            output_dir=output_dir, 
-            generate_html=args.html
-        )
-    
-    if args.cover_letter:
-        print(f"\nCreating cover letter generator with generate_html={args.html}")
-        cover_letter_generator = CoverLetterGenerator(
-            renderer=renderer, 
-            pdf_service=pdf_service,
-            html_service=html_service,
-            file_service=file_service
-        )
-        results['cover_letter'] = cover_letter_generator.generate(
-            config=config, 
-            output_dir=output_dir, 
-            generate_html=args.html
-        )
+    for generator_name in generators_to_run:
+        try:
+            # Create generator instance from factory
+            print(f"\nGenerating {generator_name} document(s)")
+            generator = factory.create_generator(generator_name)
+            
+            # Get HTML flag from args
+            generate_html = getattr(args, 'html', False)
+            
+            # Generate document
+            results[generator_name] = generator.generate(
+                config=content_config,
+                output_dir=output_dir,
+                generate_html=generate_html
+            )
+        except Exception as e:
+            print(f"Error generating {generator_name}: {e}")
+            continue
     
     # Print a summary of what was generated
     print("\nGeneration completed successfully!")
-    if args.resume and args.html and 'resume' in results:
-        html_paths = results['resume'].get('html_paths', [])
-        if html_paths:
-            for path in html_paths:
-                print(f"Resume HTML: {path}")
     
-    if args.cover_letter and args.html and 'cover_letter' in results:
-        html_path = results['cover_letter'].get('html_path')
-        if html_path:
-            print(f"Cover Letter HTML: {html_path}")
+    # Show HTML paths if requested and available
+    if hasattr(args, 'html') and args.html:
+        for generator_name, result in results.items():
+            if 'html_paths' in result:
+                for path in result['html_paths']:
+                    print(f"{generator_name} HTML: {path}")
+            elif 'html_path' in result and result['html_path']:
+                print(f"{generator_name} HTML: {result['html_path']}")
     
     return results
+
 
 if __name__ == '__main__':
     main()

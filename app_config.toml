@@ -1,0 +1,55 @@
+# Application configuration for CVGenAI
+# This file defines the services and document generators to use
+
+[services]
+# Service implementations to use
+config_manager = "config.toml.ConfigManager"
+template_renderer = "templating.renderer.Jinja2Renderer"
+pdf_service = "services.pdf_service.PDFService" 
+html_service = "services.html_service.HTMLService"
+file_service = "services.file_service.FileService"
+
+[cli]
+# Command line argument definitions
+# These will be dynamically generated in the CLI
+content_path_arg = "content"
+content_path_default = "resume.toml"
+content_path_help = "Path to the resume content file"
+
+# Global flags that apply to all generators
+[[cli.args]]
+name = "html"
+flag = true
+help = "Generate HTML versions of files"
+default = false
+
+[documents]
+# Document types and their generators
+# The order here determines the generation order
+[[documents.generators]]
+name = "resume"
+enabled = true
+class = "resume.generate.ResumeGenerator"
+description = "Resume document generator"
+# CLI argument to enable/disable this generator
+arg = "resume"
+arg_help = "Generate resume"
+
+[[documents.generators]]
+name = "cover_letter"
+enabled = true
+class = "resume.generate.CoverLetterGenerator"
+description = "Cover Letter document generator"
+# CLI argument to enable/disable this generator
+arg = "cover-letter"
+arg_help = "Generate cover letter"
+
+# You can add new document types here without modifying code
+# Example:
+# [[documents.generators]]
+# name = "thank_you_letter"
+# enabled = false
+# class = "resume.generate.ThankYouLetterGenerator"
+# description = "Thank You Letter generator"
+# arg = "thank-you"
+# arg_help = "Generate thank you letter"
