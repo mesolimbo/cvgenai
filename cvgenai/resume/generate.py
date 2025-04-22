@@ -36,17 +36,23 @@ class ResumeGenerator(DocumentGenerator):
         """Initialize with dependencies."""
         super().__init__(ResumeDocument(), renderer, pdf_service, html_service, file_service)
     
-    def generate(self, config, output_dir, generate_html=False):
+    def generate(self, config, output_dir, args):
         """Generate resume HTML and PDF files.
         
         Args:
             config: Configuration dictionary
             output_dir: Output directory path
-            generate_html: Whether to generate HTML files
+            args: Command-line arguments
             
         Returns:
             dict: Paths to generated files
         """
+        # Announce generation start
+        print("\nGenerating Resume document(s)")
+        
+        # Determine whether to generate HTML from args
+        generate_html = getattr(args, 'html', False)
+        
         # Prepare for file generation
         name_prefix, person_name = self._get_name_prefix(config)
         css_path = None
@@ -97,17 +103,23 @@ class CoverLetterGenerator(DocumentGenerator):
         """Initialize with dependencies."""
         super().__init__(CoverLetterDocument(), renderer, pdf_service, html_service, file_service)
         
-    def generate(self, config, output_dir, generate_html=False):
+    def generate(self, config, output_dir, args):
         """Generate cover letter HTML and PDF files.
         
         Args:
             config: Configuration dictionary
             output_dir: Output directory path
-            generate_html: Whether to generate HTML files
+            args: Command-line arguments
             
         Returns:
             dict: Paths to generated files
         """
+        # Announce generation start
+        print("\nGenerating Cover Letter document(s)")
+        
+        # Determine whether to generate HTML from args
+        generate_html = getattr(args, 'html', False)
+        
         # Prepare for file generation
         name_prefix, person_name = self._get_name_prefix(config)
         css_path = None

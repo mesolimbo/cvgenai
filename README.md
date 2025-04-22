@@ -9,7 +9,6 @@ A tool for generating professional resumes and cover letters in PDF and HTML for
 - Produce both PDF and HTML output formats
 - Customize content via TOML resume document
 - Support for multiple profiles/people
-- SOLID design principles for maintainability and extensibility
 
 ## Installation
 
@@ -75,7 +74,7 @@ run.sh --content my-other-resume.toml
 - **`resume.toml`**: Your personal resume and cover letter information
 - **`cvgenai/`**: Main package
   - **`cli.py`**: Command-line interface functionality
-  - **`run.py`**: Helper entry point that delegates to cli.py
+  - **`factory.py`**: creating service and generator instances based on configuration TOML
   - **`config/`**: Configuration handling
     - **`toml.py`**: TOML configuration loading via ConfigManager
   - **`core/`**: Core domain entities
@@ -88,7 +87,6 @@ run.sh --content my-other-resume.toml
     - **`pdf_service.py`**: PDF generation service
   - **`templating/`**: Template rendering
     - **`renderer.py`**: Template renderer interface and implementations
-  - **`utils/`**: General utility functions
 - **`templates/`**: Contains HTML templates and CSS styles
   - `cover_letter_template.html`: Template for cover letters
   - `resume_page1_template.html`: Template for resume page 1

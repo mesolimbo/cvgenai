@@ -27,11 +27,6 @@ def main():
         if generator_config:
             print(f"- {generator_config['description']}")
     
-    if hasattr(args, 'html') and args.html:
-        print("- HTML versions (generate_html=True)")
-    else:
-        print("- PDF only (generate_html=False)")
-    
     # Get content path from args (using the dynamic name from config)
     content_arg = factory.app_config.get('cli', {}).get('content_path_arg', 'content')
     content_path = getattr(args, content_arg)
@@ -59,17 +54,13 @@ def main():
     for generator_name in generators_to_run:
         try:
             # Create generator instance from factory
-            print(f"\nGenerating {generator_name} document(s)")
             generator = factory.create_generator(generator_name)
             
-            # Get HTML flag from args
-            generate_html = getattr(args, 'html', False)
-            
-            # Generate document
+            # Generate document - pass args directly to the generator
             results[generator_name] = generator.generate(
                 config=content_config,
                 output_dir=output_dir,
-                generate_html=generate_html
+                args=args
             )
         except Exception as e:
             print(f"Error generating {generator_name}: {e}")
@@ -77,15 +68,6 @@ def main():
     
     # Print a summary of what was generated
     print("\nGeneration completed successfully!")
-    
-    # Show HTML paths if requested and available
-    if hasattr(args, 'html') and args.html:
-        for generator_name, result in results.items():
-            if 'html_paths' in result:
-                for path in result['html_paths']:
-                    print(f"{generator_name} HTML: {path}")
-            elif 'html_path' in result and result['html_path']:
-                print(f"{generator_name} HTML: {result['html_path']}")
     
     return results
 

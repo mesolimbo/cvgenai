@@ -18,5 +18,6 @@ output/
 # Temporary files
 .tmp/
 
-# Configuration files
+# Customization files
 resume.toml
+/.github/copilot-instructions.md
