@@ -1,27 +1,73 @@
+from abc import ABC, abstractmethod
+from argparse import Namespace
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+
 from core.document import ResumeDocument, CoverLetterDocument
+from factory import Factory
 
 
-class DocumentGenerator:
-    """Base class for document generators."""
+class IDocumentGenerator(ABC):
+    """Interface for document generators."""
     
-    def __init__(self, document, renderer, pdf_service, html_service, file_service):
-        """Initialize the document generator with dependencies.
+    @abstractmethod
+    def generate(self, args: Namespace) -> Dict[str, Any]:
+        """Generate document files.
         
         Args:
-            document: Document object that provides the context and templates
-            renderer: Template renderer service
-            pdf_service: PDF generation service
-            html_service: HTML handling service
-            file_service: File operations service
+            args: Command-line arguments
+            
+        Returns:
+            dict: Paths to generated files and other results
         """
-        self.document = document
-        self.renderer = renderer
-        self.pdf_service = pdf_service
-        self.html_service = html_service
-        self.file_service = file_service
+        pass
+
+
+class DocumentGenerator(IDocumentGenerator):
+    """Base class for document generators."""
+    
+    def __init__(self, factory: Factory):
+        """Initialize the document generator with the factory.
         
-    def _get_name_prefix(self, config):
-        """Get formatted name prefix for filenames."""
+        Args:
+            factory: Factory instance that provides access to all services
+        """
+        self.factory = factory
+        self.renderer = factory.get_service('template_renderer')
+        self.pdf_service = factory.get_service('pdf_service')
+        self.html_service = factory.get_service('html_service')
+        self.file_service = factory.get_service('file_service')
+        self.config_manager = factory.get_service('config_manager')
+        
+    def _load_config(self) -> Dict[str, Any]:
+        """Load content configuration using config manager.
+        
+        Returns:
+            dict: Loaded configuration
+        """
+        # Get content path from factory app_config
+        content_arg = self.factory.app_config.get('cli', {}).get('content_path_arg', 'content')
+        # Get the actual path value from args (stored in factory)
+        content_path = self.factory.args.get(content_arg, 'resume.toml')
+        return self.config_manager.load(content_path)
+    
+    def _get_output_dir(self) -> Path:
+        """Create and return the output directory for generated files.
+        
+        Returns:
+            Path: Output directory path
+        """
+        return self.file_service.ensure_directory('output')
+        
+    def _get_name_prefix(self, config: Dict[str, Any]) -> tuple[str, str]:
+        """Get formatted name prefix for filenames.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            tuple: (name_prefix, person_name)
+        """
         person_name = config.get('personal', {}).get('name', '')
         name_prefix = self.document.format_name_for_filename(person_name)
         if name_prefix:
@@ -32,16 +78,15 @@ class DocumentGenerator:
 class ResumeGenerator(DocumentGenerator):
     """Resume document generator."""
     
-    def __init__(self, renderer, pdf_service, html_service, file_service):
-        """Initialize with dependencies."""
-        super().__init__(ResumeDocument(), renderer, pdf_service, html_service, file_service)
+    def __init__(self, factory: Factory):
+        """Initialize with factory."""
+        super().__init__(factory)
+        self.document = ResumeDocument()
     
-    def generate(self, config, output_dir, args):
+    def generate(self, args: Namespace) -> Dict[str, Any]:
         """Generate resume HTML and PDF files.
         
         Args:
-            config: Configuration dictionary
-            output_dir: Output directory path
             args: Command-line arguments
             
         Returns:
@@ -49,6 +94,12 @@ class ResumeGenerator(DocumentGenerator):
         """
         # Announce generation start
         print("\nGenerating Resume document(s)")
+        
+        # Load config from factory
+        config = self._load_config()
+        
+        # Get output directory
+        output_dir = self._get_output_dir()
         
         # Determine whether to generate HTML from args
         generate_html = getattr(args, 'html', False)
@@ -70,7 +121,7 @@ class ResumeGenerator(DocumentGenerator):
         ]
         
         # Save HTML files if requested
-        html_paths = []
+        html_paths: List[Path] = []
         if generate_html:
             for i, html_content in enumerate(html_contents):
                 html_path = output_dir / f'{name_prefix}resume_page{i+1}.html'
@@ -99,16 +150,15 @@ class ResumeGenerator(DocumentGenerator):
 class CoverLetterGenerator(DocumentGenerator):
     """Cover letter document generator."""
     
-    def __init__(self, renderer, pdf_service, html_service, file_service):
-        """Initialize with dependencies."""
-        super().__init__(CoverLetterDocument(), renderer, pdf_service, html_service, file_service)
+    def __init__(self, factory: Factory):
+        """Initialize with factory."""
+        super().__init__(factory)
+        self.document = CoverLetterDocument()
         
-    def generate(self, config, output_dir, args):
+    def generate(self, args: Namespace) -> Dict[str, Any]:
         """Generate cover letter HTML and PDF files.
         
         Args:
-            config: Configuration dictionary
-            output_dir: Output directory path
             args: Command-line arguments
             
         Returns:
@@ -116,6 +166,12 @@ class CoverLetterGenerator(DocumentGenerator):
         """
         # Announce generation start
         print("\nGenerating Cover Letter document(s)")
+        
+        # Load config from factory
+        config = self._load_config()
+        
+        # Get output directory
+        output_dir = self._get_output_dir()
         
         # Determine whether to generate HTML from args
         generate_html = getattr(args, 'html', False)
@@ -134,7 +190,7 @@ class CoverLetterGenerator(DocumentGenerator):
         html_content = self.renderer.render(template_name, context)
         
         # Save HTML file if requested
-        html_path = None
+        html_path: Optional[Path] = None
         if generate_html:
             html_path = output_dir / f'{name_prefix}cover_letter.html'
             self.html_service.save_html(html_content, str(html_path))  # Convert Path to string

@@ -3,14 +3,23 @@
 import importlib
 import tomli
 import os
+import sys
 from pathlib import Path
 import argparse
+from typing import Dict, Any, List, Type, TypeVar, Optional, Union, cast, TYPE_CHECKING
+
+# Import for type checking only to avoid circular imports
+if TYPE_CHECKING:
+    from resume.generate import IDocumentGenerator
+
+# Type variable for generic service instances
+T = TypeVar('T')
 
 
 class Factory:
     """Factory for creating service and generator instances based on configuration."""
     
-    def __init__(self, config_path=None):
+    def __init__(self, config_path: Optional[str] = None):
         """Initialize factory with application config.
         
         Args:
@@ -20,10 +29,11 @@ class Factory:
         if config_path is None:
             config_path = os.environ.get('APP_CONFIG_PATH', 'app_config.toml')
             
-        self.app_config = self._load_app_config(config_path)
-        self._service_instances = {}
+        self.app_config: Dict[str, Any] = self._load_app_config(config_path)
+        self._service_instances: Dict[str, Any] = {}
+        self.args: Dict[str, Any] = {}  # Will store parsed command-line arguments as a dict
         
-    def _load_app_config(self, config_path):
+    def _load_app_config(self, config_path: str) -> Dict[str, Any]:
         """Load application configuration from TOML file.
         
         Args:
@@ -80,14 +90,14 @@ class Factory:
                 }
             }
             
-    def get_service(self, service_name):
+    def get_service(self, service_name: str) -> Any:
         """Get a service instance by name.
         
         Args:
             service_name: Name of the service to get
             
         Returns:
-            object: Instance of the requested service
+            Any: Instance of the requested service
         """
         # Return cached instance if available
         if service_name in self._service_instances:
@@ -107,7 +117,7 @@ class Factory:
         
         return service_instance
     
-    def setup_argument_parser(self):
+    def setup_argument_parser(self) -> argparse.ArgumentParser:
         """Create an argument parser with dynamically configured arguments.
         
         Returns:
@@ -154,16 +164,33 @@ class Factory:
         
         return parser
     
-    def get_generators_to_run(self, args):
+    def parse_args(self, args: Optional[List[str]] = None) -> argparse.Namespace:
+        """Parse command-line arguments and store them in the factory.
+        
+        Args:
+            args: Command-line arguments to parse (uses sys.argv if None)
+            
+        Returns:
+            argparse.Namespace: Parsed arguments
+        """
+        parser = self.setup_argument_parser()
+        parsed_args = parser.parse_args(args)
+        
+        # Store parsed arguments as a dictionary
+        self.args = vars(parsed_args)
+        
+        return parsed_args
+    
+    def get_generators_to_run(self, args: argparse.Namespace) -> List[str]:
         """Determine which generators to run based on arguments and configuration.
         
         Args:
             args: Parsed command-line arguments
             
         Returns:
-            list: List of generator names to run
+            List[str]: List of generator names to run
         """
-        generators_to_run = []
+        generators_to_run: List[str] = []
         all_generators = self.get_enabled_generators()
         
         # Check for specific generator flags in args
@@ -182,14 +209,14 @@ class Factory:
             
         return generators_to_run
         
-    def create_generator(self, generator_name):
+    def create_generator(self, generator_name: str) -> 'IDocumentGenerator':
         """Create a document generator instance by name.
         
         Args:
             generator_name: Name of the generator to create
             
         Returns:
-            object: Instance of the requested generator
+            IDocumentGenerator: Instance of the requested generator
         """
         # Find generator configuration
         generator_config = None
@@ -201,54 +228,43 @@ class Factory:
         if not generator_config:
             raise ValueError(f"Generator '{generator_name}' not found or not enabled in configuration")
             
-        # Get the generator class
+        # Get the generator class path and instantiate it with the factory
         class_path = generator_config['class']
-        
-        # Get all required services for the generator
-        template_renderer = self.get_service('template_renderer')
-        pdf_service = self.get_service('pdf_service')
-        html_service = self.get_service('html_service')
-        file_service = self.get_service('file_service')
-        
-        # Create and return the generator instance with dependencies injected
         generator_class = self._get_class_from_path(class_path)
-        return generator_class(
-            renderer=template_renderer,
-            pdf_service=pdf_service,
-            html_service=html_service,
-            file_service=file_service
-        )
         
-    def get_enabled_generators(self):
+        # Create and return the generator instance with factory injected
+        return generator_class(factory=self)
+        
+    def get_enabled_generators(self) -> List[Dict[str, Any]]:
         """Get a list of all enabled generators from configuration.
         
         Returns:
-            list: List of generator configurations
+            List[Dict[str, Any]]: List of generator configurations
         """
         return [gen for gen in self.app_config['documents']['generators'] 
                 if gen.get('enabled', True)]
         
-    def _get_class_from_path(self, class_path):
+    def _get_class_from_path(self, class_path: str) -> Type[Any]:
         """Get a class object from its fully-qualified path.
         
         Args:
             class_path: String with module path and class name
             
         Returns:
-            class: The class object
+            Type[Any]: The class object
         """
         module_path, class_name = class_path.rsplit('.', 1)
         module = importlib.import_module(module_path)
         return getattr(module, class_name)
         
-    def _create_instance_from_path(self, class_path):
+    def _create_instance_from_path(self, class_path: str) -> Any:
         """Instantiate a class from its fully-qualified path.
         
         Args:
             class_path: String with module path and class name
             
         Returns:
-            object: Instance of the specified class
+            Any: Instance of the specified class
         """
         cls = self._get_class_from_path(class_path)
         return cls()
