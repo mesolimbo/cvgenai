@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from argparse import Namespace
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple, Union
 
 from core.document import ResumeDocument, CoverLetterDocument
 from factory import Factory
@@ -20,7 +20,7 @@ class IDocumentGenerator(ABC):
         Returns:
             dict: Paths to generated files and other results
         """
-        pass
+        raise NotImplementedError("Subclasses must implement this method")
 
 
 class DocumentGenerator(IDocumentGenerator):
@@ -38,6 +38,84 @@ class DocumentGenerator(IDocumentGenerator):
         self.html_service = factory.get_service('html_service')
         self.file_service = factory.get_service('file_service')
         self.config_manager = factory.get_service('config_manager')
+        self.document = None  # To be set by subclasses
+        self.document_type = "document"  # To be overridden by subclasses
+    
+    def generate(self, args: Namespace) -> Dict[str, Any]:
+        """Generate document files.
+        
+        Args:
+            args: Command-line arguments
+            
+        Returns:
+            dict: Paths to generated files and other results
+        """
+        # Announce generation start
+        print(f"\nGenerating {self.document_type.title()} document(s)")
+        
+        # Prepare common elements
+        elements = self.prepare_generation(args)
+        
+        # Get context and template names
+        context = self.document.prepare_context(elements['config'])
+        template_names = self.document.get_template_names()
+        
+        # Generate HTML and PDF
+        return self.generate_output_files(elements, context, template_names)
+    
+    def prepare_generation(self, args: Namespace) -> Dict[str, Any]:
+        """Prepare common elements for document generation.
+        
+        Args:
+            args: Command-line arguments
+            
+        Returns:
+            dict: Common elements needed for generation
+        """
+        # Load config
+        config = self._load_config()
+        
+        # Get output directory
+        output_dir = self._get_output_dir()
+        
+        # Determine whether to generate HTML from args
+        generate_html = getattr(args, 'html', False)
+        
+        # Get name prefix for files
+        name_prefix, person_name = self._get_name_prefix(config)
+        
+        # Copy CSS if generating HTML
+        css_path = None
+        if generate_html:
+            css_path = self.file_service.copy_css('templates/style.css', output_dir)
+            
+        return {
+            'config': config,
+            'output_dir': output_dir,
+            'generate_html': generate_html,
+            'name_prefix': name_prefix,
+            'person_name': person_name,
+            'css_path': css_path
+        }
+    
+    def generate_output_files(
+        self, 
+        elements: Dict[str, Any], 
+        context: Dict[str, Any], 
+        template_names: List[str]
+    ) -> Dict[str, Any]:
+        """Generate HTML and PDF output files.
+        
+        Args:
+            elements: Common elements from prepare_generation
+            context: Template rendering context
+            template_names: List of template names to render
+            
+        Returns:
+            dict: Paths to generated files
+        """
+        # This should be implemented by subclasses
+        raise NotImplementedError("Subclasses must implement this method")
         
     def _load_config(self) -> Dict[str, Any]:
         """Load content configuration using config manager.
@@ -59,7 +137,7 @@ class DocumentGenerator(IDocumentGenerator):
         """
         return self.file_service.ensure_directory('output')
         
-    def _get_name_prefix(self, config: Dict[str, Any]) -> tuple[str, str]:
+    def _get_name_prefix(self, config: Dict[str, Any]) -> Tuple[str, str]:
         """Get formatted name prefix for filenames.
         
         Args:
@@ -73,6 +151,37 @@ class DocumentGenerator(IDocumentGenerator):
         if name_prefix:
             name_prefix += "_"
         return name_prefix, person_name
+        
+    def _print_confirmation(
+        self,
+        person_name: str, 
+        generate_html: bool, 
+        css_path: Optional[Path], 
+        html_paths: Union[List[Path], Optional[Path]], 
+        pdf_path: Path
+    ) -> None:
+        """Print confirmation of generated files.
+        
+        Args:
+            person_name: Person's name from config
+            generate_html: Whether HTML was generated
+            css_path: Path to the CSS file if copied
+            html_paths: Path(s) to HTML file(s)
+            pdf_path: Path to the PDF file
+        """
+        print(f"✅ {self.document_type.title()} files generated for {person_name}:")
+        if generate_html:
+            if css_path:
+                print(f"   - CSS: {css_path}")
+            
+            # Handle both single HTML path and list of paths
+            if isinstance(html_paths, list):
+                for i, path in enumerate(html_paths):
+                    print(f"   - HTML Page {i+1}: {path}")
+            elif html_paths:
+                print(f"   - HTML: {html_paths}")
+                
+        print(f"   - PDF: {pdf_path}")
 
 
 class ResumeGenerator(DocumentGenerator):
@@ -82,37 +191,29 @@ class ResumeGenerator(DocumentGenerator):
         """Initialize with factory."""
         super().__init__(factory)
         self.document = ResumeDocument()
+        self.document_type = "resume"
     
-    def generate(self, args: Namespace) -> Dict[str, Any]:
-        """Generate resume HTML and PDF files.
+    def generate_output_files(
+        self, 
+        elements: Dict[str, Any], 
+        context: Dict[str, Any], 
+        template_names: List[str]
+    ) -> Dict[str, Any]:
+        """Generate HTML and PDF output files for resume.
         
         Args:
-            args: Command-line arguments
+            elements: Common elements from prepare_generation
+            context: Template rendering context
+            template_names: List of template names to render
             
         Returns:
             dict: Paths to generated files
         """
-        # Announce generation start
-        print("\nGenerating Resume document(s)")
-        
-        # Load config from factory
-        config = self._load_config()
-        
-        # Get output directory
-        output_dir = self._get_output_dir()
-        
-        # Determine whether to generate HTML from args
-        generate_html = getattr(args, 'html', False)
-        
-        # Prepare for file generation
-        name_prefix, person_name = self._get_name_prefix(config)
-        css_path = None
-        if generate_html:
-            css_path = self.file_service.copy_css('templates/style.css', output_dir)
-        
-        # Get context and template names
-        context = self.document.prepare_context(config)
-        template_names = self.document.get_template_names()
+        output_dir = elements['output_dir']
+        generate_html = elements['generate_html']
+        name_prefix = elements['name_prefix']
+        person_name = elements['person_name']
+        css_path = elements['css_path']
         
         # Render HTML content
         html_contents = [
@@ -125,20 +226,16 @@ class ResumeGenerator(DocumentGenerator):
         if generate_html:
             for i, html_content in enumerate(html_contents):
                 html_path = output_dir / f'{name_prefix}resume_page{i+1}.html'
-                self.html_service.save_html(html_content, str(html_path))  # Convert Path to string
+                self.html_service.save_html(html_content, str(html_path))
                 html_paths.append(html_path)
                 print(f"   - HTML Page {i+1}: {html_path}")
         
         # Generate combined PDF
         pdf_path = output_dir / f'{name_prefix}resume.pdf'
-        self.pdf_service.generate_pdf_from_multiple_html(html_contents, str(pdf_path))  # Convert Path to string
+        self.pdf_service.generate_pdf_from_multiple_html(html_contents, str(pdf_path))
         
         # Print confirmation
-        print(f"✅ Resume files generated for {person_name}:")
-        if generate_html:
-            if css_path:
-                print(f"   - CSS: {css_path}")
-        print(f"   - PDF: {pdf_path}")
+        self._print_confirmation(person_name, generate_html, css_path, html_paths, pdf_path)
         
         return {
             'html_paths': html_paths if generate_html else [],
@@ -154,57 +251,46 @@ class CoverLetterGenerator(DocumentGenerator):
         """Initialize with factory."""
         super().__init__(factory)
         self.document = CoverLetterDocument()
+        self.document_type = "cover letter"
         
-    def generate(self, args: Namespace) -> Dict[str, Any]:
-        """Generate cover letter HTML and PDF files.
+    def generate_output_files(
+        self, 
+        elements: Dict[str, Any], 
+        context: Dict[str, Any], 
+        template_names: List[str]
+    ) -> Dict[str, Any]:
+        """Generate HTML and PDF output files for cover letter.
         
         Args:
-            args: Command-line arguments
+            elements: Common elements from prepare_generation
+            context: Template rendering context
+            template_names: List of template names to render
             
         Returns:
             dict: Paths to generated files
         """
-        # Announce generation start
-        print("\nGenerating Cover Letter document(s)")
+        output_dir = elements['output_dir']
+        generate_html = elements['generate_html']
+        name_prefix = elements['name_prefix']
+        person_name = elements['person_name']
+        css_path = elements['css_path']
         
-        # Load config from factory
-        config = self._load_config()
-        
-        # Get output directory
-        output_dir = self._get_output_dir()
-        
-        # Determine whether to generate HTML from args
-        generate_html = getattr(args, 'html', False)
-        
-        # Prepare for file generation
-        name_prefix, person_name = self._get_name_prefix(config)
-        css_path = None
-        if generate_html:
-            css_path = self.file_service.copy_css('templates/style.css', output_dir)
-        
-        # Get context and template name
-        context = self.document.prepare_context(config)
-        template_name = self.document.get_template_names()[0]  # Cover letter has only one template
-        
-        # Render HTML content
-        html_content = self.renderer.render(template_name, context)
+        # Render HTML content (cover letter has only one template)
+        html_content = self.renderer.render(template_names[0], context)
         
         # Save HTML file if requested
         html_path: Optional[Path] = None
         if generate_html:
             html_path = output_dir / f'{name_prefix}cover_letter.html'
-            self.html_service.save_html(html_content, str(html_path))  # Convert Path to string
+            self.html_service.save_html(html_content, str(html_path))
             print(f"   - HTML: {html_path}")
         
         # Generate PDF
         pdf_path = output_dir / f'{name_prefix}cover_letter.pdf'
-        self.pdf_service.generate_pdf(html_content, str(pdf_path))  # Convert Path to string
+        self.pdf_service.generate_pdf(html_content, str(pdf_path))
         
         # Print confirmation
-        print(f"✅ Cover letter files generated for {person_name}:")
-        if generate_html and css_path:
-            print(f"   - CSS: {css_path}")
-        print(f"   - PDF: {pdf_path}")
+        self._print_confirmation(person_name, generate_html, css_path, html_path, pdf_path)
         
         return {
             'html_path': html_path,

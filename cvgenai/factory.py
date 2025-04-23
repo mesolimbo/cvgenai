@@ -3,10 +3,9 @@
 import importlib
 import tomli
 import os
-import sys
-from pathlib import Path
 import argparse
-from typing import Dict, Any, List, Type, TypeVar, Optional, Union, cast, TYPE_CHECKING
+
+from typing import Dict, Any, List, Type, TypeVar, Optional, TYPE_CHECKING
 
 # Import for type checking only to avoid circular imports
 if TYPE_CHECKING:
@@ -33,7 +32,8 @@ class Factory:
         self._service_instances: Dict[str, Any] = {}
         self.args: Dict[str, Any] = {}  # Will store parsed command-line arguments as a dict
         
-    def _load_app_config(self, config_path: str) -> Dict[str, Any]:
+    @staticmethod
+    def _load_app_config(config_path: str) -> Dict[str, Any]:
         """Load application configuration from TOML file.
         
         Args:
@@ -243,8 +243,9 @@ class Factory:
         """
         return [gen for gen in self.app_config['documents']['generators'] 
                 if gen.get('enabled', True)]
-        
-    def _get_class_from_path(self, class_path: str) -> Type[Any]:
+
+    @staticmethod
+    def _get_class_from_path(class_path: str) -> Type[Any]:
         """Get a class object from its fully-qualified path.
         
         Args:
