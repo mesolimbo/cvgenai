@@ -1,6 +1,5 @@
 """Tests for the html_service module."""
 
-import pytest
 import tempfile
 from pathlib import Path
 from cvgenai.services.html_service import HTMLService

@@ -1,7 +1,5 @@
 """Tests for the pdf_service module."""
 
-import os
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock

@@ -1,11 +1,8 @@
 """Tests for the factory module."""
 
-import os
 import pytest
 from unittest.mock import patch, mock_open, MagicMock
 from argparse import Namespace
-
-from cvgenai.factory import Factory
 
 
 class TestFactory:
@@ -13,10 +10,14 @@ class TestFactory:
 
     def test_init_with_default_config(self):
         """Test initializing the factory with default config path."""
+        # Patch the tomli.load function before importing Factory
         with patch('cvgenai.factory.tomli.load') as mock_load:
             # Mock the tomli.load call to return a test config
             test_config = {'test': 'config'}
             mock_load.return_value = test_config
+            
+            # Import Factory here after patching to avoid early initialization
+            from cvgenai.factory import Factory
             
             # Create factory with default config
             factory = Factory()
@@ -34,6 +35,7 @@ class TestFactory:
             mock_load_config.return_value = test_config
             
             # Create factory with custom config path
+            from cvgenai.factory import Factory
             factory = Factory('custom_config.toml')
             
             # Verify that config was loaded from custom path
@@ -51,6 +53,7 @@ class TestFactory:
         with patch('builtins.open', mock_open()) as mock_file:
             with patch('cvgenai.factory.tomli.load', return_value=test_config):
                 # Call the static method directly
+                from cvgenai.factory import Factory
                 config = Factory._load_app_config('test_config.toml')
                 
                 # Verify that config was loaded correctly
@@ -61,6 +64,7 @@ class TestFactory:
         """Test loading application config when file is not found."""
         with patch('builtins.open', side_effect=FileNotFoundError()):
             # Call the static method directly
+            from cvgenai.factory import Factory
             config = Factory._load_app_config('non_existent_config.toml')
             
             # Verify that a default config is returned
@@ -75,6 +79,7 @@ class TestFactory:
 
     def test_get_service_cached(self):
         """Test getting a service that is already cached."""
+        from cvgenai.factory import Factory
         factory = Factory()
         # Manually set a cached service
         test_service = object()
@@ -98,6 +103,7 @@ class TestFactory:
         mock_import_module.return_value = mock_module
         
         # Create factory with test config
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'services': {'test_service': 'test_module.TestClass'}
@@ -115,6 +121,7 @@ class TestFactory:
 
     def test_get_service_not_in_config(self):
         """Test getting a service that is not in the config."""
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {'services': {}}
         
@@ -125,6 +132,7 @@ class TestFactory:
     def test_setup_argument_parser(self):
         """Test setting up the argument parser with dynamic arguments."""
         # Create factory with a test config
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'cli': {
@@ -175,6 +183,7 @@ class TestFactory:
     def test_parse_args(self):
         """Test parsing command line arguments."""
         # Create factory and mock the argument parser
+        from cvgenai.factory import Factory
         factory = Factory()
         test_args = ['--content', 'test.toml', '--html']
         expected_namespace = Namespace(content='test.toml', html=True)
@@ -195,6 +204,7 @@ class TestFactory:
     def test_get_generators_to_run_with_flags(self):
         """Test determining which generators to run when specific flags are set."""
         # Create factory with test config
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'documents': {
@@ -230,6 +240,7 @@ class TestFactory:
     def test_get_generators_to_run_no_flags(self):
         """Test determining which generators to run when no flags are set."""
         # Create factory with test config
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'documents': {
@@ -260,6 +271,7 @@ class TestFactory:
     def test_create_generator(self):
         """Test creating a document generator instance."""
         # Create factory with test config
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'documents': {
@@ -288,6 +300,7 @@ class TestFactory:
 
     def test_create_generator_not_found(self):
         """Test creating a generator that doesn't exist in config."""
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'documents': {'generators': []}
@@ -299,6 +312,7 @@ class TestFactory:
 
     def test_create_generator_disabled(self):
         """Test creating a generator that is disabled in config."""
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'documents': {
@@ -318,6 +332,7 @@ class TestFactory:
 
     def test_get_enabled_generators(self):
         """Test getting all enabled generators from config."""
+        from cvgenai.factory import Factory
         factory = Factory()
         factory.app_config = {
             'documents': {
@@ -355,6 +370,7 @@ class TestFactory:
         mock_import_module.return_value = mock_module
         
         # Get class from path
+        from cvgenai.factory import Factory
         result = Factory._get_class_from_path('test_module.TestClass')
         
         # Verify the result
@@ -372,6 +388,7 @@ class TestFactory:
         mock_module.TestClass = mock_class
         mock_import_module.return_value = mock_module
         
+        from cvgenai.factory import Factory
         factory = Factory()
         
         # Create instance from path

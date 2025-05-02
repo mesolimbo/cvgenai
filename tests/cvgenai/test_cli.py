@@ -1,6 +1,5 @@
 """Tests for the cli module."""
 
-import pytest
 from unittest.mock import patch, MagicMock, call
 from argparse import Namespace
 

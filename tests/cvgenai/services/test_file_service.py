@@ -1,7 +1,5 @@
 """Tests for the file_service module."""
 
-import os
-import pytest
 import tempfile
 from pathlib import Path
 from cvgenai.services.file_service import FileService

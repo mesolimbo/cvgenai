@@ -1,6 +1,5 @@
 """Tests for the Document classes in core.document module."""
 
-import pytest
 from cvgenai.core.document import Document, ResumeDocument, CoverLetterDocument
 
 

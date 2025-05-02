@@ -1,6 +1,5 @@
 """Tests for the templating.renderer module."""
 
-import os
 import pytest
 import tempfile
 from pathlib import Path
