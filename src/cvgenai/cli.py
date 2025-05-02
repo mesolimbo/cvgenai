@@ -3,8 +3,8 @@
 import os
 from typing import List
 
-from factory import Factory
-from resume.generate import IDocumentGenerator
+from cvgenai.factory import Factory
+from cvgenai.resume.generate import IDocumentGenerator
 
 
 def main() -> None:

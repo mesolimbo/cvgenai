@@ -33,6 +33,8 @@ A tool for generating professional resumes and cover letters in PDF and HTML for
 
 4. Edit the `resume.toml` file with your personal information, work experience, and other resume details.
 
+When running scripts or commands, ensure that the PYTHONPATH is set to include the `src` directory. This ensures that the `cvgenai` module can be correctly located and imported.
+
 ## Usage
 
 ### Basic Usage
