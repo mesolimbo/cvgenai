@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 .env
 
+# Coverage
+.coverage
+
 # IDE
 /.idea
 
@@ -11,6 +14,12 @@ __pycache__/
 venv/
 .venv/
 ENV/
+
+# Python package build artifacts
+*.egg-info/
+*.egg
+dist/
+build/
 
 # Output directory
 output/
