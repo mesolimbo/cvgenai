@@ -8,7 +8,8 @@ from cvgenai.services.html_service import HTMLService
 class TestHTMLService:
     """Test cases for the HTMLService class."""
 
-    def test_save_html(self):
+    @staticmethod
+    def test_save_html():
         """Test saving HTML content to a file."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Define test content and path
@@ -27,7 +28,8 @@ class TestHTMLService:
                 saved_content = f.read()
                 assert saved_content == html_content
     
-    def test_save_html_with_string_path(self):
+    @staticmethod
+    def test_save_html_with_string_path():
         """Test saving HTML content using a string path."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Define test content and path
@@ -47,7 +49,8 @@ class TestHTMLService:
                 saved_content = f.read()
                 assert saved_content == html_content
     
-    def test_save_html_creates_parent_directories(self):
+    @staticmethod
+    def test_save_html_creates_parent_directories():
         """Test that saving HTML creates parent directories if they don't exist."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Define a nested path that doesn't exist yet

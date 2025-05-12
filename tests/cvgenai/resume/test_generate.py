@@ -17,7 +17,8 @@ from cvgenai.core.document import ResumeDocument, CoverLetterDocument
 class TestIDocumentGenerator:
     """Test cases for the IDocumentGenerator interface."""
 
-    def test_cannot_instantiate_abstract_class(self):
+    @staticmethod
+    def test_cannot_instantiate_abstract_class():
         """Test that IDocumentGenerator cannot be instantiated directly."""
         with pytest.raises(TypeError):
             IDocumentGenerator()

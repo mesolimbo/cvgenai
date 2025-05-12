@@ -8,7 +8,8 @@ from cvgenai.services.file_service import FileService
 class TestFileService:
     """Test cases for the FileService class."""
 
-    def test_ensure_directory(self):
+    @staticmethod
+    def test_ensure_directory():
         """Test creating a directory if it doesn't exist."""
         with tempfile.TemporaryDirectory() as base_dir:
             # Create a path for a directory that doesn't exist yet
@@ -26,7 +27,8 @@ class TestFileService:
             created_path_2 = FileService.ensure_directory(str(test_dir))
             assert created_path_2 == test_dir
 
-    def test_copy_css(self):
+    @staticmethod
+    def test_copy_css():
         """Test copying a CSS file to an output directory."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create source directory and CSS file

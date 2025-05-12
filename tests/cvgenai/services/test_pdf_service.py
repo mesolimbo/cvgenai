@@ -9,12 +9,14 @@ from cvgenai.services.pdf_service import PDFService
 class TestPDFService:
     """Test cases for the PDFService class."""
 
-    def test_init_default_css_path(self):
+    @staticmethod
+    def test_init_default_css_path():
         """Test initializing with default CSS path."""
         service = PDFService()
         assert service.css_path == 'templates/style.css'
 
-    def test_init_custom_css_path(self):
+    @staticmethod
+    def test_init_custom_css_path():
         """Test initializing with custom CSS path."""
         custom_path = 'custom/path/style.css'
         service = PDFService(css_path=custom_path)

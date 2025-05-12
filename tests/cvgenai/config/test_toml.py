@@ -9,7 +9,8 @@ from cvgenai.config.toml import ConfigManager, load_config
 class TestConfigManager:
     """Test cases for the ConfigManager class."""
 
-    def test_load_valid_toml(self):
+    @staticmethod
+    def test_load_valid_toml():
         """Test loading a valid TOML file."""
         with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".toml") as tmp:
             tmp.write(b'''
@@ -39,13 +40,15 @@ class TestConfigManager:
         finally:
             os.unlink(tmp_path)
 
-    def test_load_nonexistent_file(self):
+    @staticmethod
+    def test_load_nonexistent_file():
         """Test loading a non-existent file raises FileNotFoundError."""
         config_manager = ConfigManager()
         with pytest.raises(FileNotFoundError):
             config_manager.load("nonexistent_file.toml")
 
-    def test_load_invalid_toml(self):
+    @staticmethod
+    def test_load_invalid_toml():
         """Test loading an invalid TOML file raises an error."""
         with tempfile.NamedTemporaryFile(mode="wb", delete=False) as tmp:
             tmp.write(b'''

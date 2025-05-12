@@ -6,7 +6,8 @@ from cvgenai.core.document import Document, ResumeDocument, CoverLetterDocument
 class TestDocument:
     """Test cases for the Document base class."""
 
-    def test_format_name_for_filename(self):
+    @staticmethod
+    def test_format_name_for_filename():
         """Test converting a person's name to filename-friendly format."""
         # Test basic conversion with spaces
         assert Document.format_name_for_filename("Jane Smith") == "jane_smith"
@@ -24,7 +25,8 @@ class TestDocument:
 class TestResumeDocument:
     """Test cases for the ResumeDocument class."""
     
-    def test_get_template_names(self):
+    @staticmethod
+    def test_get_template_names():
         """Test that correct template names are returned."""
         document = ResumeDocument()
         templates = document.get_template_names()
@@ -34,7 +36,8 @@ class TestResumeDocument:
         assert templates[0] == "resume_page1_template.html"
         assert templates[1] == "resume_page2_template.html"
     
-    def test_split_intro_and_bullets_with_intro_required(self):
+    @staticmethod
+    def test_split_intro_and_bullets_with_intro_required():
         """Test the helper method that splits text into intro and bullets."""
         document = ResumeDocument()
         
@@ -58,7 +61,8 @@ class TestResumeDocument:
         assert intro == ""
         assert bullets == []
     
-    def test_split_intro_and_bullets_without_intro(self):
+    @staticmethod
+    def test_split_intro_and_bullets_without_intro():
         """Test the helper method when intro is not required."""
         document = ResumeDocument()
         
@@ -73,7 +77,8 @@ class TestResumeDocument:
         
         assert bullets == []
 
-    def test_prepare_context(self):
+    @staticmethod
+    def test_prepare_context():
         """Test preparation of the rendering context from config."""
         document = ResumeDocument()
         
@@ -108,7 +113,8 @@ class TestResumeDocument:
 class TestCoverLetterDocument:
     """Test cases for the CoverLetterDocument class."""
     
-    def test_get_template_names(self):
+    @staticmethod
+    def test_get_template_names():
         """Test that correct template names are returned."""
         document = CoverLetterDocument()
         templates = document.get_template_names()
@@ -117,7 +123,8 @@ class TestCoverLetterDocument:
         assert len(templates) == 1
         assert templates[0] == "cover_letter_template.html"
     
-    def test_format_content_as_html(self):
+    @staticmethod
+    def test_format_content_as_html():
         """Test converting plain text to HTML paragraphs."""
         document = CoverLetterDocument()
         
@@ -138,7 +145,8 @@ class TestCoverLetterDocument:
         
         assert html == "<p></p>"  # The method wraps even an empty string in <p> tags
 
-    def test_prepare_context(self):
+    @staticmethod
+    def test_prepare_context():
         """Test preparation of the rendering context from config."""
         document = CoverLetterDocument()
         

@@ -8,7 +8,8 @@ from argparse import Namespace
 class TestFactory:
     """Test cases for the Factory class."""
 
-    def test_init_with_default_config(self):
+    @staticmethod
+    def test_init_with_default_config():
         """Test initializing the factory with default config path."""
         # Patch the tomli.load function before importing Factory
         with patch('cvgenai.factory.tomli.load') as mock_load:
@@ -27,7 +28,8 @@ class TestFactory:
             assert factory._service_instances == {}
             assert factory.args == {}
 
-    def test_init_with_custom_config(self):
+    @staticmethod
+    def test_init_with_custom_config():
         """Test initializing the factory with a custom config path."""
         with patch('cvgenai.factory.Factory._load_app_config') as mock_load_config:
             # Mock the _load_app_config method to return a test config
@@ -42,7 +44,8 @@ class TestFactory:
             assert factory.app_config == test_config
             mock_load_config.assert_called_once_with('custom_config.toml')
 
-    def test_load_app_config_file_exists(self):
+    @staticmethod
+    def test_load_app_config_file_exists():
         """Test loading application config from an existing file."""
         test_config = {
             'services': {'test_service': 'test.module.TestClass'},
@@ -60,7 +63,8 @@ class TestFactory:
                 assert config == test_config
                 mock_file.assert_called_once_with('test_config.toml', 'rb')
 
-    def test_load_app_config_file_not_found(self):
+    @staticmethod
+    def test_load_app_config_file_not_found():
         """Test loading application config when file is not found."""
         with patch('builtins.open', side_effect=FileNotFoundError()):
             # Call the static method directly
@@ -77,7 +81,8 @@ class TestFactory:
             assert isinstance(config['documents']['generators'], list)
             assert 'content_path_arg' in config['cli']
 
-    def test_get_service_cached(self):
+    @staticmethod
+    def test_get_service_cached():
         """Test getting a service that is already cached."""
         from cvgenai.factory import Factory
         factory = Factory()
@@ -119,7 +124,8 @@ class TestFactory:
         assert 'test_service' in factory._service_instances
         assert factory._service_instances['test_service'] is mock_instance
 
-    def test_get_service_not_in_config(self):
+    @staticmethod
+    def test_get_service_not_in_config():
         """Test getting a service that is not in the config."""
         from cvgenai.factory import Factory
         factory = Factory()
@@ -129,7 +135,8 @@ class TestFactory:
         with pytest.raises(ValueError):
             factory.get_service('non_existent_service')
 
-    def test_setup_argument_parser(self):
+    @staticmethod
+    def test_setup_argument_parser():
         """Test setting up the argument parser with dynamic arguments."""
         # Create factory with a test config
         from cvgenai.factory import Factory
@@ -180,7 +187,8 @@ class TestFactory:
         assert args.value_arg == 'custom-value'
         assert args.test_generator is True
 
-    def test_parse_args(self):
+    @staticmethod
+    def test_parse_args():
         """Test parsing command line arguments."""
         # Create factory and mock the argument parser
         from cvgenai.factory import Factory
@@ -201,7 +209,8 @@ class TestFactory:
             assert factory.args == {'content': 'test.toml', 'html': True}
             mock_parser.parse_args.assert_called_once_with(test_args)
 
-    def test_get_generators_to_run_with_flags(self):
+    @staticmethod
+    def test_get_generators_to_run_with_flags():
         """Test determining which generators to run when specific flags are set."""
         # Create factory with test config
         from cvgenai.factory import Factory
@@ -237,7 +246,8 @@ class TestFactory:
         # Verify that only the specified generator is included
         assert generators == ['resume']
 
-    def test_get_generators_to_run_no_flags(self):
+    @staticmethod
+    def test_get_generators_to_run_no_flags():
         """Test determining which generators to run when no flags are set."""
         # Create factory with test config
         from cvgenai.factory import Factory
@@ -268,7 +278,8 @@ class TestFactory:
         # Verify that all enabled generators are included
         assert set(generators) == {'resume', 'cover-letter'}
 
-    def test_create_generator(self):
+    @staticmethod
+    def test_create_generator():
         """Test creating a document generator instance."""
         # Create factory with test config
         from cvgenai.factory import Factory
@@ -298,7 +309,8 @@ class TestFactory:
             assert generator is mock_generator_instance
             mock_generator_class.assert_called_once_with(factory=factory)
 
-    def test_create_generator_not_found(self):
+    @staticmethod
+    def test_create_generator_not_found():
         """Test creating a generator that doesn't exist in config."""
         from cvgenai.factory import Factory
         factory = Factory()
@@ -310,7 +322,8 @@ class TestFactory:
         with pytest.raises(ValueError):
             factory.create_generator('non-existent')
 
-    def test_create_generator_disabled(self):
+    @staticmethod
+    def test_create_generator_disabled():
         """Test creating a generator that is disabled in config."""
         from cvgenai.factory import Factory
         factory = Factory()
@@ -330,7 +343,8 @@ class TestFactory:
         with pytest.raises(ValueError):
             factory.create_generator('disabled-gen')
 
-    def test_get_enabled_generators(self):
+    @staticmethod
+    def test_get_enabled_generators():
         """Test getting all enabled generators from config."""
         from cvgenai.factory import Factory
         factory = Factory()
