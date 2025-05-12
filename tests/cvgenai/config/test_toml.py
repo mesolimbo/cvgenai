@@ -11,7 +11,7 @@ class TestConfigManager:
 
     def test_load_valid_toml(self):
         """Test loading a valid TOML file."""
-        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".toml") as tmp:
             tmp.write(b'''
                 [app]
                 name = "CVGenAI"
