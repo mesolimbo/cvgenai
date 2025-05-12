@@ -57,7 +57,8 @@ class TestDocumentGenerator:
                 self.document = MagicMock()
                 self.document_type = "test"
                 
-            def generate_output_files(self, elements, context, template_names):
+            @staticmethod
+            def generate_output_files(elements, context, template_names):
                 return {
                     'html_path': Path('test.html'),
                     'pdf_path': Path('test.pdf'),
