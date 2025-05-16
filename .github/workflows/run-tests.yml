@@ -31,9 +31,22 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pipenv-
           
+    - name: Install dependencies
+      run: |
+        pipenv install --dev
+        # Explicitly install pytest and pytest-cov to ensure they're available
+        pipenv install pytest pytest-cov
+        
+    - name: Verify pytest installation
+      run: |
+        pipenv run python -m pytest --version
+        
     - name: Run tests
       run: |
         chmod +x ./test.sh
+        # Set PYTHONPATH to ensure modules can be found
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        # Run test script with verbose output
         ./test.sh
         
     - name: Upload coverage report
