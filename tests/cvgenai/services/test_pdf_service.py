@@ -94,7 +94,7 @@ class TestPDFService:
                 mock_html_class.assert_any_call(string=html_contents[1])
                 
                 # Verify render was called for all HTML instances with correct CSS
-                for i, instance in enumerate(mock_html_instances):
+                for _, instance in enumerate(mock_html_instances):
                     instance.render.assert_called_once()
                     # Check that CSS was passed to render
                     css_arg = instance.render.call_args[1]['stylesheets'][0]
