@@ -84,10 +84,8 @@ class DocumentGenerator(IDocumentGenerator):
         # Get name prefix for files
         name_prefix, person_name = self._get_name_prefix(config)
         
-        # Copy CSS if generating HTML
-        css_path = None
-        if generate_html:
-            css_path = self.file_service.copy_css('templates/style.css', output_dir)
+        # Copy CSS only if generating HTML
+        css_path = self.file_service.copy_css('templates/style.css', output_dir, generate_html)
             
         return {
             'config': config,

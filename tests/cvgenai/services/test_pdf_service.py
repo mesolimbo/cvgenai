@@ -60,7 +60,7 @@ class TestPDFService:
         # Setup mocks for HTML class
         with patch('cvgenai.services.pdf_service.HTML') as mock_html_class:
             # Configure mocks for each HTML instance
-            for i in range(2):
+            for _ in range(2):
                 mock_instance = MagicMock()
                 mock_doc = MagicMock()
                 mock_html_instances.append(mock_instance)

@@ -5,11 +5,7 @@ import tomli
 import os
 import argparse
 
-from typing import Dict, Any, List, Type, TypeVar, Optional, TYPE_CHECKING
-
-# Import for type checking only to avoid circular imports
-if TYPE_CHECKING:
-    from resume.generate import IDocumentGenerator
+from typing import Dict, Any, List, Type, TypeVar, Optional
 
 # Type variable for generic service instances
 T = TypeVar('T')
@@ -19,7 +15,8 @@ class Factory:
     """Factory for creating service and generator instances based on configuration."""
     
     def __init__(self, config_path: Optional[str] = None):
-        """Initialize factory with application config.
+        """
+        Initialize factory with application config.
         
         Args:
             config_path: Path to the application configuration file
@@ -34,7 +31,8 @@ class Factory:
         
     @staticmethod
     def _load_app_config(config_path: str) -> Dict[str, Any]:
-        """Load application configuration from TOML file.
+        """
+        Load application configuration from TOML file.
         
         Args:
             config_path: Path to the application configuration file
@@ -209,14 +207,15 @@ class Factory:
             
         return generators_to_run
         
-    def create_generator(self, generator_name: str) -> 'IDocumentGenerator':
-        """Create a document generator instance by name.
+    def create_generator(self, generator_name: str) -> 'Any':
+        """
+        Create a document generator instance by name.
         
         Args:
             generator_name: Name of the generator to create
             
         Returns:
-            IDocumentGenerator: Instance of the requested generator
+            Any: Document generator instance
         """
         # Find generator configuration
         generator_config = None

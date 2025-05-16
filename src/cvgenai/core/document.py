@@ -56,8 +56,10 @@ class ResumeDocument(Document):
 
     @staticmethod
     def _split_intro_and_bullets(text, require_intro=True):
-        """Split a block of text into an intro and a list of bullet points.
-        If require_intro is False, treat all lines as bullets."""
+        """
+        Split a block of text into an intro and a list of bullet points.
+        If require_intro is False, treat all lines as bullets.
+        """
         lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
         if not lines:
             return ('', []) if require_intro else []

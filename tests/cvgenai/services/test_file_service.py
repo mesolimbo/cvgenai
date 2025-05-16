@@ -29,7 +29,7 @@ class TestFileService:
 
     @staticmethod
     def test_copy_css():
-        """Test copying a CSS file to an output directory."""
+        """Test copying a CSS file to an output directory when generate_html is True."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create source directory and CSS file
             source_dir = Path(temp_dir) / "source"
@@ -44,10 +44,11 @@ class TestFileService:
             output_dir = Path(temp_dir) / "output"
             output_dir.mkdir()
             
-            # Copy the CSS file
-            dest_path = FileService.copy_css(css_file, output_dir)
+            # Copy the CSS file with generate_html=True
+            dest_path = FileService.copy_css(css_file, output_dir, generate_html=True)
             
             # Check that the file was copied correctly
+            assert dest_path is not None
             assert dest_path.exists()
             assert dest_path.is_file()
             assert dest_path == output_dir / "style.css"
@@ -56,3 +57,27 @@ class TestFileService:
             with open(dest_path, 'r') as f:
                 copied_content = f.read()
                 assert copied_content == css_content
+                
+    @staticmethod
+    def test_copy_css_without_html_flag():
+        """Test that CSS is not copied when generate_html is False."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create source directory and CSS file
+            source_dir = Path(temp_dir) / "source"
+            source_dir.mkdir()
+            css_file = source_dir / "style.css"
+            css_content = "body { font-family: Arial; }"
+            
+            with open(css_file, 'w') as f:
+                f.write(css_content)
+            
+            # Create output directory
+            output_dir = Path(temp_dir) / "output"
+            output_dir.mkdir()
+            
+            # Call copy_css with generate_html=False
+            result = FileService.copy_css(css_file, output_dir, generate_html=False)
+            
+            # Check that no file was copied and None was returned
+            assert result is None
+            assert not (output_dir / "style.css").exists()
