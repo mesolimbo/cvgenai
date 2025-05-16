@@ -56,6 +56,15 @@ class TestDocumentGenerator:
                 super().__init__(factory)
                 self.document = MagicMock()
                 self.document_type = "test"
+                self.prepare_generation =(
+                    MagicMock(return_value={
+                        'config': {'personal': {'name': 'Test User'}},
+                        'output_dir': Path('output'),
+                        'generate_html': True,
+                        'name_prefix': 'test_user_',
+                        'person_name': 'Test User',
+                        'css_path': Path('output/style.css')
+                    }))
                 
             @staticmethod
             def generate_output_files(elements, context, template_names):
@@ -147,16 +156,6 @@ class TestDocumentGenerator:
         mock_context = {'name': 'Test User'}
         self.generator.document.prepare_context.return_value = mock_context
         self.generator.document.get_template_names.return_value = ['test_template.html']
-        
-        # Mock prepare_generation to return test elements
-        self.generator.prepare_generation = MagicMock(return_value={
-            'config': {'personal': {'name': 'Test User'}},
-            'output_dir': Path('output'),
-            'generate_html': True,
-            'name_prefix': 'test_user_',
-            'person_name': 'Test User',
-            'css_path': Path('output/style.css')
-        })
         
         # Create test args
         args = Namespace(html=True)
