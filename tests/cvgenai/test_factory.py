@@ -53,15 +53,14 @@ class TestFactory:
             'cli': {'args': []}
         }
         
-        with patch('builtins.open', mock_open()) as mock_file:
-            with patch('cvgenai.factory.tomli.load', return_value=test_config):
-                # Call the static method directly
-                from cvgenai.factory import Factory
-                config = Factory._load_app_config('test_config.toml')
-                
-                # Verify that config was loaded correctly
-                assert config == test_config
-                mock_file.assert_called_once_with('test_config.toml', 'rb')
+        with patch('builtins.open', mock_open()) as mock_file, patch('cvgenai.factory.tomli.load', return_value=test_config):
+            # Call the static method directly
+            from cvgenai.factory import Factory
+            config = Factory._load_app_config('test_config.toml')
+            
+            # Verify that config was loaded correctly
+            assert config == test_config
+            mock_file.assert_called_once_with('test_config.toml', 'rb')
 
     @staticmethod
     def test_load_app_config_file_not_found():
