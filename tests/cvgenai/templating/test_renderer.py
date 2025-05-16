@@ -9,7 +9,8 @@ from cvgenai.templating.renderer import ITemplateRenderer, Jinja2Renderer
 class TestITemplateRenderer:
     """Test cases for the ITemplateRenderer interface."""
 
-    def test_cannot_instantiate_abstract_class(self):
+    @staticmethod
+    def test_cannot_instantiate_abstract_class():
         """Test that ITemplateRenderer cannot be instantiated directly."""
         with pytest.raises(TypeError):
             ITemplateRenderer()
@@ -44,12 +45,14 @@ class TestJinja2Renderer:
         """Clean up after each test method."""
         self.template_dir.cleanup()
 
-    def test_init_with_default_template_dir(self):
+    @staticmethod
+    def test_init_with_default_template_dir():
         """Test initialization with default template directory."""
         renderer = Jinja2Renderer()
         assert renderer.env.loader.searchpath == ['templates']
 
-    def test_init_with_custom_template_dir(self):
+    @staticmethod
+    def test_init_with_custom_template_dir():
         """Test initialization with a custom template directory."""
         custom_dir = 'custom/templates'
         renderer = Jinja2Renderer(custom_dir)
