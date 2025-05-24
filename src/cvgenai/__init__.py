@@ -1,5 +1,8 @@
 """Template rendering module for CV Generation."""
 
-from .cli import main
+from .cli import CLI
 
-__all__ = ["main"]
+# Export the main function for backwards compatibility
+main = CLI.main
+
+__all__ = ["main", "CLI"]
