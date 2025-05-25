@@ -8,7 +8,6 @@ from cvgenai.cli import CLI
 
 class TestCLI:
     """Test cases for command-line interface functions."""
-
     @patch('cvgenai.cli.CLI.initialize_factory')
     def test_main_initialization(self, mock_initialize_factory):
         """Test the initialization of the Factory in main function."""
@@ -31,6 +30,7 @@ class TestCLI:
         # Verify args were parsed
         mock_factory_instance.parse_args.assert_called_once()
 
+
     @patch('cvgenai.cli.os.environ.get')
     def test_main_with_custom_config_path(self, mock_environ_get):
         """Test main function with a custom config path from environment variable."""
@@ -46,32 +46,37 @@ class TestCLI:
         # Verify environment variable was checked with correct parameters
         mock_environ_get.assert_called_once_with('APP_CONFIG_PATH', 'app_config.toml')
 
-    @patch('cvgenai.cli.CLI.initialize_factory')
-    def test_main_generator_execution(self, mock_initialize_factory):
-        """Test that generators are correctly executed in main."""
+
+    @staticmethod
+    def set_up_mocks(mock_initialize_factory):
         # Setup mocks
         mock_factory_instance = MagicMock()
         mock_initialize_factory.return_value = mock_factory_instance
-
         # Mock args
         mock_args = Namespace(content='test_resume.toml')
         mock_factory_instance.parse_args.return_value = mock_args
-
         # Mock generators to run
         mock_factory_instance.get_generators_to_run.return_value = ['resume', 'cover_letter']
-
         # Mock enabled generators
         mock_factory_instance.get_enabled_generators.return_value = [
             {'name': 'resume', 'description': 'Resume Generator'},
             {'name': 'cover_letter', 'description': 'Cover Letter Generator'}
         ]
-
         # Mock app config
         mock_factory_instance.app_config = {'cli': {'content_path_arg': 'content'}}
-
         # Mock generator instances
         mock_resume_generator = MagicMock()
         mock_cover_letter_generator = MagicMock()
+        return mock_args, mock_cover_letter_generator, mock_factory_instance, mock_resume_generator
+
+
+    @patch('cvgenai.cli.CLI.initialize_factory')
+    def test_main_generator_execution(self, mock_initialize_factory):
+        """Test that generators are correctly executed in main."""
+        (mock_args,
+         mock_cover_letter_generator,
+         mock_factory_instance,
+         mock_resume_generator) = self.set_up_mocks(mock_initialize_factory)
 
         # Configure create_generator to return different generators based on name
         mock_factory_instance.create_generator.side_effect = lambda name: {
@@ -93,33 +98,15 @@ class TestCLI:
         mock_resume_generator.generate.assert_called_once_with(args=mock_args)
         mock_cover_letter_generator.generate.assert_called_once_with(args=mock_args)
 
+
     @patch('cvgenai.cli.CLI.initialize_factory')
     @patch('builtins.print')
     def test_main_with_generator_error(self, mock_print, mock_initialize_factory):
         """Test error handling when a generator raises an exception."""
-        # Setup mocks
-        mock_factory_instance = MagicMock()
-        mock_initialize_factory.return_value = mock_factory_instance
-
-        # Mock args
-        mock_args = Namespace(content='test_resume.toml')
-        mock_factory_instance.parse_args.return_value = mock_args
-
-        # Mock generators to run
-        mock_factory_instance.get_generators_to_run.return_value = ['resume', 'cover_letter']
-
-        # Mock enabled generators
-        mock_factory_instance.get_enabled_generators.return_value = [
-            {'name': 'resume', 'description': 'Resume Generator'},
-            {'name': 'cover_letter', 'description': 'Cover Letter Generator'}
-        ]
-
-        # Mock app config
-        mock_factory_instance.app_config = {'cli': {'content_path_arg': 'content'}}
-
-        # Mock generator instances
-        mock_resume_generator = MagicMock()
-        mock_cover_letter_generator = MagicMock()
+        (mock_args,
+         mock_cover_letter_generator,
+         mock_factory_instance,
+         mock_resume_generator) = self.set_up_mocks(mock_initialize_factory)
 
         # Make the resume generator raise an exception
         mock_resume_generator.generate.side_effect = Exception("Test error")
