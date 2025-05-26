@@ -1,8 +1,9 @@
 """Tests for the factory module."""
 
-import pytest
-from unittest.mock import patch, mock_open, MagicMock
 from argparse import Namespace
+import pytest
+import sys
+from unittest.mock import patch, mock_open, MagicMock
 
 
 class TestFactory:
@@ -65,20 +66,14 @@ class TestFactory:
     @staticmethod
     def test_load_app_config_file_not_found():
         """Test loading application config when file is not found."""
-        with patch('builtins.open', side_effect=FileNotFoundError()):
+        with patch('builtins.open', side_effect=FileNotFoundError()), \
+                patch('cvgenai.factory.sys.exit') as mock_exit:
             # Call the static method directly
             from cvgenai.factory import Factory
-            config = Factory._load_app_config('non_existent_config.toml')
-            
-            # Verify that a default config is returned
-            assert 'services' in config
-            assert 'documents' in config
-            assert 'cli' in config
-            
-            # Check some specific default values
-            assert 'config_manager' in config['services']
-            assert isinstance(config['documents']['generators'], list)
-            assert 'content_path_arg' in config['cli']
+            Factory._load_app_config('non_existent_config.toml')
+
+            # Verify sys.exit was called with code 1
+            mock_exit.assert_called_once_with(1)
 
     @staticmethod
     def test_get_service_cached():

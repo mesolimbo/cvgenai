@@ -31,20 +31,21 @@ class TestCLI:
         mock_factory_instance.parse_args.assert_called_once()
 
 
+    @patch('cvgenai.factory.Factory._load_app_config', return_value={})
     @patch('cvgenai.cli.os.environ.get')
-    def test_main_with_custom_config_path(self, mock_environ_get):
+    def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config):
         """Test main function with a custom config path from environment variable."""
-        # Setup mock
+        # Setup mock for environment variable
         mock_environ_get.return_value = 'custom_config.toml'
 
-        # We need to patch sys.argv to avoid command line parsing issues
-        with patch('sys.argv', ['cvgenai']):
-            # Call the initialize_factory method directly instead of main
-            # This allows us to test just the part we care about
-            CLI.initialize_factory()
+        # Call the initialize_factory method directly
+        CLI.initialize_factory()
 
-        # Verify environment variable was checked with correct parameters
+        # Verify environment variable was checked
         mock_environ_get.assert_called_once_with('APP_CONFIG_PATH', 'app_config.toml')
+
+        # Verify the factory attempted to load the custom config
+        mock_load_app_config.assert_called_once_with('custom_config.toml')
 
 
     @staticmethod

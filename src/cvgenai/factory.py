@@ -1,6 +1,8 @@
 """Factory module for creating service and generator instances."""
 
 import importlib
+import sys
+
 import tomli
 import os
 import argparse
@@ -44,50 +46,11 @@ class Factory:
             with open(config_path, 'rb') as f:
                 return tomli.load(f)
         except FileNotFoundError:
-            # If the custom app config is not found, return a default configuration
-            return {
-                'services': {
-                    'config_manager': 'config.toml.ConfigManager',
-                    'template_renderer': 'templating.renderer.Jinja2Renderer',
-                    'pdf_service': 'services.pdf_service.PDFService',
-                    'html_service': 'services.html_service.HTMLService',
-                    'file_service': 'services.file_service.FileService',
-                },
-                'documents': {
-                    'generators': [
-                        {
-                            'name': 'resume',
-                            'enabled': True,
-                            'class': 'resume.generate.ResumeGenerator',
-                            'description': 'Resume document generator',
-                            'arg': 'resume',
-                            'arg_help': 'Generate resume'
-                        },
-                        {
-                            'name': 'cover_letter',
-                            'enabled': True,
-                            'class': 'resume.generate.CoverLetterGenerator',
-                            'description': 'Cover Letter document generator',
-                            'arg': 'cover-letter',
-                            'arg_help': 'Generate cover letter'
-                        }
-                    ]
-                },
-                'cli': {
-                    'content_path_arg': 'content',
-                    'content_path_default': 'resume.toml',
-                    'content_path_help': 'Path to the resume content file',
-                    'args': [
-                        {
-                            'name': 'html',
-                            'flag': True,
-                            'help': 'Generate HTML versions of files',
-                            'default': False
-                        }
-                    ]
-                }
-            }
-            
+            # If the custom app config is not found, output message in stderr and exit with code 1
+            print(f"Error: Configuration file '{config_path}' not found.", file=sys.stderr)
+            sys.exit(1)
+
+
     def get_service(self, service_name: str) -> Any:
         """Get a service instance by name.
         
