@@ -2,7 +2,6 @@
 
 from argparse import Namespace
 import pytest
-import sys
 from unittest.mock import patch, mock_open, MagicMock
 
 
