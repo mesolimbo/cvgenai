@@ -8,6 +8,7 @@ from cvgenai.cli import CLI
 
 class TestCLI:
     """Test cases for command-line interface functions."""
+
     @patch('cvgenai.cli.CLI.initialize_factory')
     def test_main_initialization(self, mock_initialize_factory):
         """Test the initialization of the Factory in main function."""
