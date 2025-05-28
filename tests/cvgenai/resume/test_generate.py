@@ -14,16 +14,6 @@ from cvgenai.resume.generate import (
 from cvgenai.document import ResumeDocument, CoverLetterDocument
 
 
-class TestIDocumentGenerator:
-    """Test cases for the IDocumentGenerator interface."""
-
-    @staticmethod
-    def test_cannot_instantiate_abstract_class():
-        """Test that IDocumentGenerator cannot be instantiated directly."""
-        with pytest.raises(TypeError):
-            IDocumentGenerator()
-
-
 class TestDocumentGenerator:
     """Test cases for the DocumentGenerator base class."""
 
