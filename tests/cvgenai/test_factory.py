@@ -53,7 +53,8 @@ class TestFactory:
             'cli': {'args': []}
         }
         
-        with patch('builtins.open', mock_open()) as mock_file, patch('cvgenai.config.ConfigManager.load', return_value=test_config):
+        with (patch('builtins.open', mock_open()),
+              patch('cvgenai.config.ConfigManager.load', return_value=test_config)):
             # Call the static method directly
             from cvgenai.factory import Factory
             config = Factory('test_config.toml')
