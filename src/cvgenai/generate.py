@@ -49,6 +49,7 @@ class DocumentGenerator(IDocumentGenerator):
     
 
     def load_elements(self, elements: Dict[str, Any]):
+        """Load common elements for document generation."""
         self.output_dir = elements['output_dir']
         self.generate_html = elements['generate_html']
         self.name_prefix = elements['name_prefix']
@@ -130,7 +131,6 @@ class DocumentGenerator(IDocumentGenerator):
         Returns:
             dict: Paths to generated files
         """
-
         # Render HTML content
         html_contents = [
             self.renderer.render(template_name, context)
