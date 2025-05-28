@@ -27,6 +27,15 @@ class TestIDocumentGenerator:
 class TestDocumentGenerator:
     """Test cases for the DocumentGenerator base class."""
 
+    # Define class attributes with type annotations
+    mock_factory = None
+    mock_renderer = None
+    mock_pdf_service = None
+    mock_html_service = None
+    mock_file_service = None
+    mock_config_manager = None
+    generator = None
+
     def setup_method(self):
         """Set up test fixtures before each test method."""
         # Create mock factory and services
@@ -176,6 +185,14 @@ class TestDocumentGenerator:
 class TestResumeGenerator:
     """Test cases for the ResumeGenerator class."""
     
+    # Define class attributes with type annotations
+    mock_factory = None
+    mock_renderer = None
+    mock_pdf_service = None
+    mock_html_service = None
+    mock_file_service = None
+    generator = None
+
     def setup_method(self):
         """Set up test fixtures before each test method."""
         # Create mock factory and services
@@ -275,6 +292,14 @@ class TestResumeGenerator:
 class TestCoverLetterGenerator:
     """Test cases for the CoverLetterGenerator class."""
     
+    # Define class attributes with type annotations
+    mock_factory = None
+    mock_renderer = None
+    mock_pdf_service = None
+    mock_html_service = None
+    mock_file_service = None
+    generator = None
+
     def setup_method(self):
         """Set up test fixtures before each test method."""
         # Create mock factory and services
@@ -359,3 +384,4 @@ class TestCoverLetterGenerator:
         # Verify the result structure
         assert result['html_path'] is None  # No HTML file
         assert 'pdf_path' in result
+

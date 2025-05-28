@@ -19,21 +19,31 @@ class TestITemplateRenderer:
 class TestJinja2Renderer:
     """Test cases for the Jinja2Renderer implementation."""
 
+    # Define class attributes with type annotations
+    template_dir: tempfile.TemporaryDirectory = None
+    renderer: Jinja2Renderer = None
+    mock_file_service = None
+    mock_html_service = None
+    mock_pdf_service = None
+    mock_renderer = None
+    mock_factory = None
+    generator = None
+
     def setup_method(self):
         """Set up test environment before each test method."""
         # Create a temporary directory for templates
         self.template_dir = tempfile.TemporaryDirectory()
-        
+
         # Create a simple test template
         simple_template_path = Path(self.template_dir.name) / "simple.html"
         with open(simple_template_path, 'w') as f:
             f.write("<h1>Hello, {{ name }}!</h1>")
-        
+
         # Create a template that extends another template
         base_template_path = Path(self.template_dir.name) / "base.html"
         with open(base_template_path, 'w') as f:
             f.write("<!DOCTYPE html>\n<html>\n<body>{% block content %}{% endblock %}</body>\n</html>")
-            
+
         child_template_path = Path(self.template_dir.name) / "child.html"
         with open(child_template_path, 'w') as f:
             f.write("{% extends 'base.html' %}\n{% block content %}<p>{{ message }}</p>{% endblock %}")
@@ -83,3 +93,4 @@ class TestJinja2Renderer:
         """Test handling of non-existent templates."""
         with pytest.raises(Exception):
             self.renderer.render('non_existent.html', {})
+
