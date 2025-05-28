@@ -88,13 +88,12 @@ run.sh --content my-other-resume.toml
 ## Project Structure
 
 - **`resume.toml`**: Your personal resume and cover letter information
-- **`cvgenai/`**: Main package
+- **`src/cvgenai/`**: Main package
   - **`cli.py`**: Command-line interface functionality
   - **`document.py`**: Document abstractions and implementations
   - **`factory.py`**: Creating service and generator instances based on configuration TOML
   - **`generate.py`**: Resume and cover letter document generation
-  - **`config/`**: Configuration handling
-    - **`toml.py`**: TOML configuration loading via ConfigManager
+  - **`config.py`**: TOML configuration loading via ConfigManager
   - **`services/`**: Independent service classes
     - **`file_service.py`**: File operations service
     - **`html_service.py`**: HTML generation service
@@ -113,7 +112,7 @@ run.sh --content my-other-resume.toml
     - `[name]_resume_page1.html`: HTML for first page of the resume
     - `[name]_resume_page2.html`: HTML for second page of the resume
     - `[name]_cover_letter.html`: HTML version of the cover letter
-    - `style.css`: Copy of the CSS file
+    - `style.css`: Copy of the CSS file used
 
 ## Customization
 
