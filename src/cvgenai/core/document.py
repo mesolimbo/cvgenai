@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 import re
 
 
-"""Document classes for CV Generation."""
+# Document classes for CV Generation.
 class Document(ABC):
     """Base class for all document types."""
-    
+
     @abstractmethod
     def prepare_context(self, config):
         """Prepare the rendering context from configuration."""
