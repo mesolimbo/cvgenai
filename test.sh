@@ -31,5 +31,5 @@ if [ "$SKIP_INSTALL" = false ]; then
   pipenv install -e .
 fi
 
-# Run pytest with coverage and all arguments passed to this script
-pipenv run pytest --cov=cvgenai --cov-report=term --cov-report=html "$@"
+# Run pytest with coverage - only output to terminal
+pipenv run pytest --cov=cvgenai --cov-report=term "$@"

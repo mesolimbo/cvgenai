@@ -49,10 +49,3 @@ jobs:
         export PYTHONPATH=$PYTHONPATH:$(pwd)
         # Run test script with verbose output
         ./test.sh
-        
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: htmlcov/
-        if-no-files-found: ignore
