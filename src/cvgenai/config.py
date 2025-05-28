@@ -12,7 +12,7 @@ class IConfigLoader(ABC):
         """Load configuration from a file path."""
         pass
 
-# Reference ConfigLoader Implementation
+# Reference TOML ConfigLoader Implementation
 class ConfigManager(IConfigLoader):
     """TOML configuration manager."""
     

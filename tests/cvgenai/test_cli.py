@@ -32,7 +32,7 @@ class TestCLI:
         mock_factory_instance.parse_args.assert_called_once()
 
 
-    @patch('cvgenai.factory.Factory._load_app_config', return_value={})
+    @patch('cvgenai.config.ConfigManager.load', return_value={})
     @patch('cvgenai.cli.os.environ.get')
     def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config):
         """Test main function with a custom config path from environment variable."""

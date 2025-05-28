@@ -12,7 +12,7 @@ class TestFactory:
     def test_init_with_default_config():
         """Test initializing the factory with default config path."""
         # Patch the tomli.load function before importing Factory
-        with patch('cvgenai.factory.tomli.load') as mock_load:
+        with patch('cvgenai.config.ConfigManager.load') as mock_load:
             # Mock the tomli.load call to return a test config
             test_config = {'test': 'config'}
             mock_load.return_value = test_config
@@ -31,7 +31,7 @@ class TestFactory:
     @staticmethod
     def test_init_with_custom_config():
         """Test initializing the factory with a custom config path."""
-        with patch('cvgenai.factory.Factory._load_app_config') as mock_load_config:
+        with patch('cvgenai.config.ConfigManager.load') as mock_load_config:
             # Mock the _load_app_config method to return a test config
             test_config = {'test': 'config'}
             mock_load_config.return_value = test_config
@@ -53,26 +53,26 @@ class TestFactory:
             'cli': {'args': []}
         }
         
-        with patch('builtins.open', mock_open()) as mock_file, patch('cvgenai.factory.tomli.load', return_value=test_config):
+        with patch('builtins.open', mock_open()) as mock_file, patch('cvgenai.config.ConfigManager.load', return_value=test_config):
             # Call the static method directly
             from cvgenai.factory import Factory
-            config = Factory._load_app_config('test_config.toml')
+            config = Factory('test_config.toml')
             
             # Verify that config was loaded correctly
-            assert config == test_config
-            mock_file.assert_called_once_with('test_config.toml', 'rb')
+            assert config.app_config == test_config
+
 
     @staticmethod
-    def test_load_app_config_file_not_found():
-        """Test loading application config when file is not found."""
-        with patch('builtins.open', side_effect=FileNotFoundError()), \
-                patch('cvgenai.factory.sys.exit') as mock_exit:
+    def test_file_not_found():
+        """Test loading application config from a non-existent file."""
+        with patch('cvgenai.config.ConfigManager.load', side_effect=FileNotFoundError):
             # Call the static method directly
             from cvgenai.factory import Factory
-            Factory._load_app_config('non_existent_config.toml')
 
-            # Verify sys.exit was called with code 1
-            mock_exit.assert_called_once_with(1)
+            # Verify that ValueError is raised when file does not exist
+            with pytest.raises(FileNotFoundError):
+                Factory('non_existent_config.toml')
+
 
     @staticmethod
     def test_get_service_cached():

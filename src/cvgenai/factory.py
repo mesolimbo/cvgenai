@@ -1,13 +1,14 @@
 """Factory module for creating service and generator instances."""
 
 import importlib
-import sys
 
-import tomli
 import os
 import argparse
 
 from typing import Dict, Any, List, Type, TypeVar, Optional
+
+from .config import IConfigLoader, ConfigManager
+
 
 # Type variable for generic service instances
 T = TypeVar('T')
@@ -26,29 +27,12 @@ class Factory:
         # Allow overriding config path via environment variable
         if config_path is None:
             config_path = os.environ.get('APP_CONFIG_PATH', 'app_config.toml')
-            
-        self.app_config: Dict[str, Any] = self._load_app_config(config_path)
+
+        self._config_loader: IConfigLoader = ConfigManager()
+        self.app_config: Dict[str, Any] = self._config_loader.load(config_path)
         self._service_instances: Dict[str, Any] = {}
-        self.args: Dict[str, Any] = {}  # Will store parsed command-line arguments as a dict
-        
-    @staticmethod
-    def _load_app_config(config_path: str) -> Dict[str, Any]:
-        """
-        Load application configuration from TOML file.
-        
-        Args:
-            config_path: Path to the application configuration file
-            
-        Returns:
-            dict: Loaded configuration
-        """
-        try:
-            with open(config_path, 'rb') as f:
-                return tomli.load(f)
-        except FileNotFoundError:
-            # If the custom app config is not found, output message in stderr and exit with code 1
-            print(f"Error: Configuration file '{config_path}' not found.", file=sys.stderr)
-            sys.exit(1)
+        # Store parsed command-line arguments as a dict
+        self.args: Dict[str, Any] = {}
 
 
     def get_service(self, service_name: str) -> Any:

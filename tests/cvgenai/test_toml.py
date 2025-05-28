@@ -3,7 +3,7 @@
 import os
 import pytest
 import tempfile
-from cvgenai.config.toml import ConfigManager
+from cvgenai.config import ConfigManager
 
 
 class TestConfigManager:

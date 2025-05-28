@@ -3,7 +3,7 @@
 
 [services]
 # Service implementations to use
-config_manager = "config.toml.ConfigManager"
+config_manager = "config.ConfigManager"
 template_renderer = "templating.renderer.Jinja2Renderer"
 pdf_service = "services.pdf_service.PDFService" 
 html_service = "services.html_service.HTMLService"
