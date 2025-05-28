@@ -1,6 +1,6 @@
-"""Tests for the Document classes in core.document module."""
+"""Tests for the Document classes in document module."""
 
-from cvgenai.core.document import Document, ResumeDocument, CoverLetterDocument
+from cvgenai.document import Document, ResumeDocument, CoverLetterDocument
 
 
 class TestDocument:

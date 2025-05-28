@@ -3,7 +3,7 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Union
 
-from cvgenai.core.document import ResumeDocument, CoverLetterDocument
+from cvgenai.document import ResumeDocument, CoverLetterDocument
 from cvgenai.factory import Factory
 
 # Factory module interface for creating service and generator instances based on configuration

@@ -11,7 +11,7 @@ from cvgenai.resume.generate import (
     ResumeGenerator,
     CoverLetterGenerator
 )
-from cvgenai.core.document import ResumeDocument, CoverLetterDocument
+from cvgenai.document import ResumeDocument, CoverLetterDocument
 
 
 class TestIDocumentGenerator:

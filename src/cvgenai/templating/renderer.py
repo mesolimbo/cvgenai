@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from jinja2 import Environment, FileSystemLoader
 
 
+# Renderer interface for templating systems
 class ITemplateRenderer(ABC):
     """Interface for template renderers."""
     
@@ -13,6 +14,7 @@ class ITemplateRenderer(ABC):
         pass
 
 
+# Jinja2 implementation of the template renderer
 class Jinja2Renderer(ITemplateRenderer):
     """Jinja2 implementation of the template renderer."""
     
