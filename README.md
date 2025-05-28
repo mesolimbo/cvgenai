@@ -45,6 +45,20 @@ Generate both resume and cover letter (PDF only):
 ./run.sh
 ```
 
+### Running Tests
+
+Run all tests (this will install the package first):
+
+```bash
+./test.sh
+```
+
+Skip the package installation and only run tests:
+
+```bash
+./test.sh -t
+```
+
 ### Command Line Options
 
 | Option | Description |
@@ -76,13 +90,11 @@ run.sh --content my-other-resume.toml
 - **`resume.toml`**: Your personal resume and cover letter information
 - **`cvgenai/`**: Main package
   - **`cli.py`**: Command-line interface functionality
-  - **`factory.py`**: creating service and generator instances based on configuration TOML
+  - **`document.py`**: Document abstractions and implementations
+  - **`factory.py`**: Creating service and generator instances based on configuration TOML
+  - **`generate.py`**: Resume and cover letter document generation
   - **`config/`**: Configuration handling
     - **`toml.py`**: TOML configuration loading via ConfigManager
-  - **`core/`**: Core domain entities
-    - **`document.py`**: Document abstractions and implementations
-  - **`resume/`**: Resume and cover letter generation 
-    - **`generate.py`**: Document generator classes
   - **`services/`**: Independent service classes
     - **`file_service.py`**: File operations service
     - **`html_service.py`**: HTML generation service
