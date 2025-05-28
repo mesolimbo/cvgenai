@@ -3,7 +3,7 @@
 import os
 import pytest
 import tempfile
-from cvgenai.config.toml import ConfigManager, load_config
+from cvgenai.config.toml import ConfigManager
 
 
 class TestConfigManager:
@@ -35,7 +35,7 @@ class TestConfigManager:
             assert config["settings"]["output_dir"] == "output"
             
             # Test with legacy function
-            legacy_config = load_config(tmp_path)
+            legacy_config = config_manager.load(tmp_path)
             assert legacy_config == config
         finally:
             os.unlink(tmp_path)

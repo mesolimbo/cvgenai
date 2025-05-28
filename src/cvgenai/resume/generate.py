@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Any, Tuple, Union
 from cvgenai.core.document import ResumeDocument, CoverLetterDocument
 from cvgenai.factory import Factory
 
-
+# Factory module interface for creating service and generator instances based on configuration
 class IDocumentGenerator(ABC):
     """Interface for document generators."""
     
@@ -23,6 +23,7 @@ class IDocumentGenerator(ABC):
         raise NotImplementedError("Subclasses must implement this method")
 
 
+# Reference implementation of the document generator interface
 class DocumentGenerator(IDocumentGenerator):
     """Base class for document generators."""
     

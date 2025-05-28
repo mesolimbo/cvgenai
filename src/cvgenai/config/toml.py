@@ -3,7 +3,7 @@
 import tomli
 from abc import ABC, abstractmethod
 
-
+# Config loader interface
 class IConfigLoader(ABC):
     """Interface for configuration loaders."""
     
@@ -12,7 +12,7 @@ class IConfigLoader(ABC):
         """Load configuration from a file path."""
         pass
 
-
+# Reference ConfigLoader Implementation
 class ConfigManager(IConfigLoader):
     """TOML configuration manager."""
     
@@ -30,16 +30,3 @@ class ConfigManager(IConfigLoader):
 
         with open(config_path, 'rb') as f:
             return tomli.load(f)
-
-
-# Legacy function for backward compatibility
-def load_config(config_path):
-    """Load configuration from TOML file (legacy function).
-    
-    Args:
-        config_path: Path to the TOML configuration file
-        
-    Returns:
-        dict: Loaded configuration
-    """
-    return ConfigManager().load(config_path)

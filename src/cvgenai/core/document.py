@@ -1,9 +1,8 @@
-"""Abstract document classes for CV Generation."""
-
 from abc import ABC, abstractmethod
 import re
 
 
+"""Document classes for CV Generation."""
 class Document(ABC):
     """Base class for all document types."""
     
@@ -28,7 +27,7 @@ class Document(ABC):
         formatted_name = re.sub(r'[^\w_]', '', formatted_name)
         return formatted_name
 
-
+# Reference implementations for resume document
 class ResumeDocument(Document):
     """Implementation for Resume document type."""
     
@@ -83,6 +82,7 @@ class ResumeDocument(Document):
             return bullets
 
 
+# Reference implementations for cover letter document
 class CoverLetterDocument(Document):
     """Implementation for Cover Letter document type."""
     
