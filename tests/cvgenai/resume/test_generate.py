@@ -1,12 +1,10 @@
 """Tests for the resume.generate module."""
 
-import pytest
 from unittest.mock import MagicMock
 from argparse import Namespace
 from pathlib import Path
 
 from cvgenai.resume.generate import (
-    IDocumentGenerator,
     DocumentGenerator,
     ResumeGenerator,
     CoverLetterGenerator
