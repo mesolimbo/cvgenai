@@ -283,7 +283,7 @@ class TestFactory:
                     {
                         'name': 'test-gen',
                         'enabled': True,
-                        'class': 'cvgenai.resume.generate.ResumeGenerator'
+                        'class': 'cvgenai.generate.ResumeGenerator'
                     }
                 ]
             }
@@ -326,7 +326,7 @@ class TestFactory:
                     {
                         'name': 'disabled-gen',
                         'enabled': False,
-                        'class': 'cvgenai.resume.generate.ResumeGenerator'
+                        'class': 'cvgenai.generate.ResumeGenerator'
                     }
                 ]
             }

@@ -1,10 +1,10 @@
-"""Tests for the resume.generate module."""
+"""Tests for the generate module."""
 
 from unittest.mock import MagicMock
 from argparse import Namespace
 from pathlib import Path
 
-from cvgenai.resume.generate import (
+from cvgenai.generate import (
     DocumentGenerator,
     ResumeGenerator,
     CoverLetterGenerator

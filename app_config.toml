@@ -29,7 +29,7 @@ default = false
 [[documents.generators]]
 name = "resume"
 enabled = true
-class = "resume.generate.ResumeGenerator"
+class = "generate.ResumeGenerator"
 description = "Resume document generator"
 # CLI argument to enable/disable this generator
 arg = "resume"
@@ -38,7 +38,7 @@ arg_help = "Generate resume"
 [[documents.generators]]
 name = "cover_letter"
 enabled = true
-class = "resume.generate.CoverLetterGenerator"
+class = "generate.CoverLetterGenerator"
 description = "Cover Letter document generator"
 # CLI argument to enable/disable this generator
 arg = "cover-letter"
@@ -49,7 +49,7 @@ arg_help = "Generate cover letter"
 # [[documents.generators]]
 # name = "thank_you_letter"
 # enabled = false
-# class = "resume.generate.ThankYouLetterGenerator"
+# class = "generate.ThankYouLetterGenerator"
 # description = "Thank You Letter generator"
 # arg = "thank-you"
 # arg_help = "Generate thank you letter"

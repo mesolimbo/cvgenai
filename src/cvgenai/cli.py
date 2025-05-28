@@ -4,7 +4,7 @@ import os
 from typing import List, Any, Dict
 
 from cvgenai.factory import Factory
-from cvgenai.resume.generate import IDocumentGenerator
+from cvgenai.generate import IDocumentGenerator
 
 
 class CLI:
