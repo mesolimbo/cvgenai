@@ -94,8 +94,8 @@ class CoverLetterDocument(Document):
         """Prepare the rendering context from configuration."""
         context = {
             **config.get('personal', {}),
-            'recipient': config.get('content', {}).get('recipient', ''),
-            'content': self._format_content_as_html(config.get('content', {}).get('cover_letter', ''))
+            'recipient': config.get('letter', {}).get('recipient', ''),
+            'content': self._format_content_as_html(config.get('letter', {}).get('letter_body', ''))
         }
         
         return context

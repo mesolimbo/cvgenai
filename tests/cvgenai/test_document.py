@@ -156,9 +156,9 @@ class TestCoverLetterDocument:
                 "name": "Jane Smith",
                 "email": "jane@example.com"
             },
-            "content": {
+            "letter": {
                 "recipient": "HR Department",
-                "cover_letter": "Dear HR,\n\nI am writing to apply for the position."
+                "letter_body": "Dear HR,\n\nI am writing to apply for the position."
             }
         }
         

@@ -6,9 +6,9 @@ phone = "(555) 123-4567"
 linkedin = "linkedin.com/in/janesmith"
 location = "San Francisco, CA"
 
-[content]
+[letter]
 recipient = "Hiring Manager"
-cover_letter = """
+letter_body = """
 I am writing to express my strong interest in the [ROLE] position at [COMPANY]. With my background in software development and passion for creating efficient solutions, I believe I would be a valuable addition to your team.
 
 In my current role at [CURRENT COMPANY], I have developed and maintained multiple web applications using modern technologies. I have experience with [RELEVANT TECHNOLOGIES], and various web frameworks. I am particularly proud of my work on [PROJECT], where I [ACHIEVEMENT].
