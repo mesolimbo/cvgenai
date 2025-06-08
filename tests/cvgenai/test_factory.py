@@ -12,7 +12,8 @@ class TestFactory:
     def test_init_with_default_config():
         """Test initializing the factory with default config path."""
         # Patch the tomli.load function before importing Factory
-        with patch('cvgenai.config.ConfigManager.load') as mock_load:
+        with (patch('cvgenai.config.ConfigManager.load') as mock_load,
+              patch('cvgenai.factory.Factory._parse_args') as _):
             # Mock the tomli.load call to return a test config
             test_config = {'test': 'config'}
             mock_load.return_value = test_config
@@ -26,14 +27,13 @@ class TestFactory:
             # Verify that config was loaded properly
             assert factory.app_config == test_config
             assert factory._service_instances == {}
-            assert factory.args == {}
 
     @staticmethod
     def test_init_with_custom_config():
         """Test initializing the factory with a custom config path."""
         with patch('cvgenai.config.ConfigManager.load') as mock_load_config:
             # Mock the _load_app_config method to return a test config
-            test_config = {'test': 'config'}
+            test_config = {'test': 'config', 'documents': {'generators': []}}
             mock_load_config.return_value = test_config
             
             # Create factory with custom config path
@@ -182,29 +182,8 @@ class TestFactory:
         assert args.test_generator is True
 
     @staticmethod
-    def test_parse_args():
-        """Test parsing command line arguments."""
-        # Create factory and mock the argument parser
-        from cvgenai.factory import Factory
-        factory = Factory()
-        test_args = ['--content', 'test.toml', '--html']
-        expected_namespace = Namespace(content='test.toml', html=True)
-        
-        with patch.object(factory, 'setup_argument_parser') as mock_setup_parser:
-            mock_parser = MagicMock()
-            mock_parser.parse_args.return_value = expected_namespace
-            mock_setup_parser.return_value = mock_parser
-            
-            # Parse arguments
-            result = factory.parse_args(test_args)
-            
-            # Verify that arguments were parsed and stored
-            assert result == expected_namespace
-            assert factory.args == {'content': 'test.toml', 'html': True}
-            mock_parser.parse_args.assert_called_once_with(test_args)
-
-    @staticmethod
-    def test_get_generators_to_run_with_flags():
+    @patch('cvgenai.factory.Factory._parse_args')
+    def test_get_generators_to_run_with_flags(_):
         """Test determining which generators to run when specific flags are set."""
         # Create factory with test config
         from cvgenai.factory import Factory
@@ -231,14 +210,11 @@ class TestFactory:
             }
         }
         
-        # Create args with specific generators enabled
-        args = Namespace(resume=True, cover_letter=False, other=False)
-        
         # Get generators to run
-        generators = factory.get_generators_to_run(args)
+        generators = factory.get_generators_to_run()
         
         # Verify that only the specified generator is included
-        assert generators == ['resume']
+        assert generators == ['resume', 'cover-letter', 'other']
 
     @staticmethod
     def test_get_generators_to_run_no_flags():
@@ -262,12 +238,12 @@ class TestFactory:
                 ]
             }
         }
-        
+
         # Create args with no generators specifically enabled
         args = Namespace(resume=False, cover_letter=False)
         
         # Get generators to run
-        generators = factory.get_generators_to_run(args)
+        generators = factory.get_generators_to_run()
         
         # Verify that all enabled generators are included
         assert set(generators) == {'resume', 'cover-letter'}

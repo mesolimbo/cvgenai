@@ -11,7 +11,7 @@ class IDocumentGenerator(ABC):
     """Interface for document generators."""
     
     @abstractmethod
-    def generate(self, args: Namespace) -> Dict[str, Any]:
+    def generate(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Generate document files.
         
         Args:
@@ -57,7 +57,7 @@ class DocumentGenerator(IDocumentGenerator):
         self.css_path = elements['css_path']
 
 
-    def generate(self, args: Namespace) -> Dict[str, Any]:
+    def generate(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Generate document files.
         
         Args:
@@ -72,31 +72,6 @@ class DocumentGenerator(IDocumentGenerator):
         # Prepare common elements
         elements = self.prepare_generation(args)
 
-        # TODO: Convert elements using DocumentGenerator subclass openai_handler
-        # e.g.
-        #
-        # Here is a resume in markdown:
-        # ---
-        # {base_resume_md}
-        # ---
-        #
-        # Here is a job description:
-        # ---
-        # {job_description}
-        # ---
-        #
-        # Based on the job description, rewrite the resume to emphasize relevant skills and experience. Then write a personalized cover letter. Output in Markdown, clearly mark with:
-        #
-        # RESUME:
-        # <markdown resume here>
-        #
-        # COVER LETTER:
-        # <markdown cover letter here>
-        # """
-        #
-        # Parse response then returne as elements
-        # print(elements['config']['skills'])
-
         self.load_elements(elements)
         
         # Get context and template names
@@ -107,7 +82,7 @@ class DocumentGenerator(IDocumentGenerator):
         return self.generate_output_files(elements, context, template_names)
 
 
-    def prepare_generation(self, args: Namespace) -> Dict[str, Any]:
+    def prepare_generation(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare common elements for document generation.
 
         Args:
@@ -117,13 +92,14 @@ class DocumentGenerator(IDocumentGenerator):
             dict: Common elements needed for generation
         """
         # Load config
+        # TODO: Don't load "config" (resume) here, this should happen in the factory
         config = self._load_config()
 
         # Get output directory
         output_dir = self._get_output_dir()
 
         # Determine whether to generate HTML from args
-        generate_html = getattr(args, 'html', False)
+        generate_html = args['html']
 
         # Get name prefix for files
         name_prefix, person_name = self._get_name_prefix(config)

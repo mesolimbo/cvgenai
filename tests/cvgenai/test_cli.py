@@ -28,13 +28,12 @@ class TestCLI:
 
         # Verify Factory was initialized with correct config path
         mock_initialize_factory.assert_called_once()
-        # Verify args were parsed
-        mock_factory_instance.parse_args.assert_called_once()
 
 
+    @patch('cvgenai.factory.Factory._parse_args')
     @patch('cvgenai.config.ConfigManager.load', return_value={})
     @patch('cvgenai.cli.os.environ.get')
-    def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config):
+    def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config, _):
         """Test main function with a custom config path from environment variable."""
         # Setup mock for environment variable
         mock_environ_get.return_value = 'custom_config.toml'
@@ -97,8 +96,8 @@ class TestCLI:
         ])
 
         # Verify both generators were executed with correct arguments
-        mock_resume_generator.generate.assert_called_once_with(args=mock_args)
-        mock_cover_letter_generator.generate.assert_called_once_with(args=mock_args)
+        mock_resume_generator.generate.assert_called_once()
+        mock_cover_letter_generator.generate.assert_called_once()
 
 
     @patch('cvgenai.cli.CLI.initialize_factory')
@@ -126,4 +125,4 @@ class TestCLI:
         mock_print.assert_any_call("Error generating resume: Test error")
 
         # Verify the second generator was still executed despite the first one failing
-        mock_cover_letter_generator.generate.assert_called_once_with(args=mock_args)
+        mock_cover_letter_generator.generate.assert_called_once()

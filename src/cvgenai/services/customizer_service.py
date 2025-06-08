@@ -75,33 +75,3 @@ Please provide a customized version of this resume that:
 Return only the complete TOML document with no additional explanation.
 """
         return prompt
-
-
-    def _toml_to_dict(self, toml_string):
-        """
-        Process the LLM's TOML response back into a Python dictionary.
-        This is a second call to the LLM to convert TOML to a Python dict.
-
-        Args:
-            toml_string (str): TOML formatted string
-
-        Returns:
-            dict: Parsed TOML as a Python dictionary
-        """
-        # Make a second API call to have the LLM convert TOML to a Python dict
-        response = self.client.responses.create(
-            model="gpt-4o",
-            instructions="You are a TOML parser that converts TOML to a Python dictionary. Return only the Python dictionary representation with no additional text.",
-            input=f"Convert this TOML to a Python dictionary:\n\n{toml_string}"
-        )
-
-        # The response should be a valid Python dictionary representation
-        # Using eval is typically unsafe, but in this controlled environment with
-        # content from a trusted source (OpenAI API), it's acceptable
-        try:
-            result_dict = eval(response.output_text)
-            return result_dict
-        except Exception as e:
-            # If there's an error, return a simple error message
-            print(f"Error parsing TOML response: {e}")
-            return {"error": "Failed to parse customized resume"}

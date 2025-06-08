@@ -130,7 +130,7 @@ class TestDocumentGenerator:
         self.mock_file_service.copy_css.return_value = Path('output/style.css')
         
         # Create test args
-        args = Namespace(html=True)
+        args = {'html': True}
         
         # Call the actual prepare_generation method
         result = self.generator.prepare_generation(args)
@@ -158,7 +158,7 @@ class TestDocumentGenerator:
         self.generator.document.get_template_names.return_value = ['test_template.html']
         
         # Create test args
-        args = Namespace(html=True)
+        args = {'html': True}
         
         # Call the method
         result = self.generator.generate(args)
