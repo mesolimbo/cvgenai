@@ -3,6 +3,8 @@ from openai import OpenAI
 
 
 class CustomizerService:
+    """Service to customize resumes based on job descriptions using OpenAI's LLM API."""
+
     def __init__(self, model="gpt-4.1"):
         self.client = OpenAI(
             # This is the default and can be omitted
@@ -40,7 +42,7 @@ class CustomizerService:
 
        # Parse the TOML response back to a dictionary and return it
         # we'll have to let the LLM format its response as a Python dictionary
-        return self._toml_to_dict(response.output_text)
+        return response.output_text
 
 
     @staticmethod
