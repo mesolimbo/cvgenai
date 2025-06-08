@@ -3,6 +3,8 @@
 import os
 from typing import List, Any, Dict
 
+from dotenv import load_dotenv
+
 from cvgenai.factory import Factory
 from cvgenai.generate import IDocumentGenerator
 
@@ -54,6 +56,9 @@ class CLI:
     @staticmethod
     def main() -> None:
         """Parse command line arguments and run document generation."""
+        # Load API key as environment variables from .env file
+        load_dotenv()
+
         # Initialize factory
         factory = CLI.initialize_factory()
 
