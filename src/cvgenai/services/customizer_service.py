@@ -3,21 +3,26 @@ from openai import OpenAI
 
 
 class CustomizerService:
-    def __init__(self):
+    def __init__(self, model="gpt-4.1"):
         self.client = OpenAI(
             # This is the default and can be omitted
             api_key=os.environ.get('OPENAI_API_KEY'),
         )
+        self.instructions = (
+            "You are an expert resume editor who can tailors resumes to specific job descriptions. "
+            "Your output must be valid TOML format, and it must maintain the resume structure of the TOML provided. "
+            "We have layout restrictions, so each section in your edits should be similar in length to the original."
+        )
+        self.model = model
 
-    def customize(self, resume_data, job_description, output_path=None):
+
+    def customize(self, resume_data, job_description):
         """
         Customize a resume based on a job description.
 
         Args:
             resume_data (dict): Resume data already parsed from TOML
             job_description (str): Job description text
-            output_path (str, optional): Path to save the customized resume TOML file.
-                                        If None, returns the customized resume as a dict.
 
         Returns:
             dict or str: Customized resume as a dict if output_path is None,
@@ -28,38 +33,28 @@ class CustomizerService:
 
         # Call the LLM to customize the resume
         response = self.client.responses.create(
-            model="gpt-4o",
-            instructions="You are an expert resume customizer that tailors resumes to specific job descriptions. You maintain the original structure and approximate length of the resume sections. Your output must be valid TOML format.",
+            model=self.model,
+            instructions=self.instructions,
             input=prompt
         )
 
-        # Get the customized resume in TOML format
-        customized_resume_toml = response.output_text
-
-        # Save the customized resume if output_path is provided
-        if output_path:
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(customized_resume_toml)
-            return output_path
-
-        # Parse the TOML response back to a dictionary and return it
-        # Since we need to return a dictionary and can't use tomli_w,
+       # Parse the TOML response back to a dictionary and return it
         # we'll have to let the LLM format its response as a Python dictionary
-        return self._toml_to_dict(customized_resume_toml)
+        return self._toml_to_dict(response.output_text)
 
-    def _create_customization_prompt(self, resume_data, job_description):
+
+    @staticmethod
+    def _create_customization_prompt(resume, job_description):
         """
         Create a prompt for the LLM to customize the resume.
 
         Args:
-            resume_data (dict): Resume data already parsed from TOML
+            resume (dict): Resume data already parsed from TOML
             job_description (str): Job description text
 
         Returns:
             str: Prompt for the LLM
         """
-        # Convert the resume data to TOML format for better context
-        resume_toml = self._dict_to_toml(resume_data)
 
         prompt = f"""
 I need to customize the following resume in TOML format to better match this job description:
@@ -68,7 +63,7 @@ JOB DESCRIPTION:
 {job_description}
 
 CURRENT RESUME (TOML format):
-{resume_toml}
+{resume}
 
 Please provide a customized version of this resume that:
 1. Highlights skills and experiences most relevant to the job description
@@ -110,55 +105,3 @@ Return only the complete TOML document with no additional explanation.
             # If there's an error, return a simple error message
             print(f"Error parsing TOML response: {e}")
             return {"error": "Failed to parse customized resume"}
-
-
-    def _dict_to_toml(self, data, indent=0):
-        """
-        Convert a dictionary to TOML format string.
-
-        Args:
-            data (dict): Dictionary to convert
-            indent (int): Current indentation level
-
-        Returns:
-            str: TOML formatted string
-        """
-        result = []
-
-        for key, value in data.items():
-            # Handle nested dictionaries
-            if isinstance(value, dict):
-                result.append(f"[{key}]")
-                result.append(self._dict_to_toml(value, indent + 2))
-            # Handle lists of dictionaries (for experience items)
-            elif isinstance(value, list) and all(isinstance(item, dict) for item in value):
-                for item in value:
-                    result.append(f"[[{key}]]")
-                    for sub_key, sub_value in item.items():
-                        formatted_value = self._format_toml_value(sub_value)
-                        result.append(f"{sub_key} = {formatted_value}")
-                    result.append("")
-            # Handle regular lists
-            elif isinstance(value, list):
-                formatted_list = [self._format_toml_value(item) for item in value]
-                result.append(f"{key} = [{', '.join(formatted_list)}]")
-            # Handle simple values
-            else:
-                formatted_value = self._format_toml_value(value)
-                result.append(f"{key} = {formatted_value}")
-
-        return "\n".join(result)
-
-
-    @staticmethod
-    def _format_toml_value(value):
-        """
-        Format a Python value as a TOML value.
-
-        Args:
-            value: The value to format
-
-        Returns:
-            str: Formatted TOML value
-        """
-        return f"'''{value}'''"
