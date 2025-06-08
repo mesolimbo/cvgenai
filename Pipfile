@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-cvgenai = {file = ".", editable = true}
 jinja2 = "3.1.6"
 markdown2 = "2.5.3"
 openai = "1.84.0"
 python-dotenv = "1.1.0"
 tomli = "2.2.1"
 weasyprint = "65.1"
+cvgenai = {file = ".", editable = true}
 
 [dev-packages]
 graphviz = "0.20.3"

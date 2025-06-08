@@ -32,7 +32,32 @@ class Factory:
         self.app_config: Dict[str, Any] = self._config_loader.load(config_path)
         self._service_instances: Dict[str, Any] = {}
         # Store parsed command-line arguments as a dict
-        self.args: Dict[str, Any] = {}
+        self.args: Dict[str, Any] = self._parse_args()
+        # TODO: Load resume content as string once and customize with AI before parsing and passing to generators
+        #
+        # e.g.
+        #
+        # Here is a resume in markdown:
+        # ---
+        # {base_resume_md}
+        # ---
+        #
+        # Here is a job description:
+        # ---
+        # {job_description}
+        # ---
+        #
+        # Based on the job description, rewrite the resume to emphasize relevant skills and experience. Then write a personalized cover letter. Output in Markdown, clearly mark with:
+        #
+        # RESUME:
+        # <markdown resume here>
+        #
+        # COVER LETTER:
+        # <markdown cover letter here>
+        # """
+        #
+        # Parse response then returne as elements
+        # print(elements['config']['skills'])
 
 
     def get_service(self, service_name: str) -> Any:
@@ -109,7 +134,7 @@ class Factory:
         
         return parser
     
-    def parse_args(self, args: Optional[List[str]] = None) -> argparse.Namespace:
+    def _parse_args(self, args: Optional[List[str]] = None) -> Dict[str, Any]:
         """Parse command-line arguments and store them in the factory.
         
         Args:
@@ -121,12 +146,9 @@ class Factory:
         parser = self.setup_argument_parser()
         parsed_args = parser.parse_args(args)
         
-        # Store parsed arguments as a dictionary
-        self.args = vars(parsed_args)
-        
-        return parsed_args
+        return vars(parsed_args)
     
-    def get_generators_to_run(self, args: argparse.Namespace) -> List[str]:
+    def get_generators_to_run(self) -> List[str]:
         """Determine which generators to run based on arguments and configuration.
         
         Args:
@@ -142,8 +164,8 @@ class Factory:
         any_generator_specified = False
         for generator in all_generators:
             arg_name = generator.get('arg')
-            if arg_name and hasattr(args, arg_name.replace('-', '_')):
-                arg_value = getattr(args, arg_name.replace('-', '_'))
+            if arg_name and hasattr(self.args, arg_name.replace('-', '_')):
+                arg_value = getattr(self.args, arg_name.replace('-', '_'))
                 if arg_value:
                     generators_to_run.append(generator['name'])
                     any_generator_specified = True
