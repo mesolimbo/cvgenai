@@ -68,14 +68,13 @@ class TestCLI:
         # Mock generator instances
         mock_resume_generator = MagicMock()
         mock_cover_letter_generator = MagicMock()
-        return mock_args, mock_cover_letter_generator, mock_factory_instance, mock_resume_generator
+        return mock_cover_letter_generator, mock_factory_instance, mock_resume_generator
 
 
     @patch('cvgenai.cli.CLI.initialize_factory')
     def test_main_generator_execution(self, mock_initialize_factory):
         """Test that generators are correctly executed in main."""
-        (mock_args,
-         mock_cover_letter_generator,
+        (mock_cover_letter_generator,
          mock_factory_instance,
          mock_resume_generator) = self.set_up_mocks(mock_initialize_factory)
 
@@ -104,8 +103,7 @@ class TestCLI:
     @patch('builtins.print')
     def test_main_with_generator_error(self, mock_print, mock_initialize_factory):
         """Test error handling when a generator raises an exception."""
-        (mock_args,
-         mock_cover_letter_generator,
+        (mock_cover_letter_generator,
          mock_factory_instance,
          mock_resume_generator) = self.set_up_mocks(mock_initialize_factory)
 

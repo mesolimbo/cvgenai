@@ -1,6 +1,5 @@
 """Tests for the factory module."""
 
-from argparse import Namespace
 import pytest
 from unittest.mock import patch, mock_open, MagicMock
 import sys
@@ -260,9 +259,6 @@ class TestFactory:
             }
         }
 
-        # Create args with no generators specifically enabled
-        args = Namespace(resume=False, cover_letter=False)
-        
         # Get generators to run
         generators = factory.get_generators_to_run()
         
