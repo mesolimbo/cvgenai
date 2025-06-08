@@ -55,7 +55,6 @@ class CustomizerService:
         Returns:
             str: Prompt for the LLM
         """
-
         prompt = f"""
 I need to customize the following resume in TOML format to better match this job description:
 

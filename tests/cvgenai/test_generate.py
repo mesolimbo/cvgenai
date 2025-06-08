@@ -1,7 +1,6 @@
 """Tests for the generate module."""
 
 from unittest.mock import MagicMock
-from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Any
 
