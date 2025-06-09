@@ -37,7 +37,6 @@ class DocumentGenerator(IDocumentGenerator):
         self.pdf_service = factory.get_service('pdf_service')
         self.html_service = factory.get_service('html_service')
         self.file_service = factory.get_service('file_service')
-        self.config_manager = factory.get_service('config_manager')
         self.document = None  # To be set by subclasses
         self.document_type = "document"  # To be overridden by subclasses
         self.output_dir = None
@@ -90,10 +89,6 @@ class DocumentGenerator(IDocumentGenerator):
         Returns:
             dict: Common elements needed for generation
         """
-        # Load config
-        # TODO: Don't load "config" (resume) here, this should happen in the factory
-        config = self._load_config()
-
         # Get output directory
         output_dir = self._get_output_dir()
 
@@ -101,13 +96,13 @@ class DocumentGenerator(IDocumentGenerator):
         generate_html = args['html']
 
         # Get name prefix for files
-        name_prefix, person_name = self._get_name_prefix(config)
+        name_prefix, person_name = self._get_name_prefix(self.factory.career)
 
         # Copy CSS only if generating HTML
         css_path = self.file_service.copy_css('templates/style.css', output_dir, generate_html)
 
         return {
-            'config': config,
+            'config': self.factory.career,
             'output_dir': output_dir,
             'generate_html': generate_html,
             'name_prefix': name_prefix,
@@ -158,19 +153,6 @@ class DocumentGenerator(IDocumentGenerator):
             'pdf_paths': [pdf_path],
             'css_path': self.css_path
         }
-
-
-    def _load_config(self) -> Dict[str, Any]:
-        """Load content configuration using config manager.
-        
-        Returns:
-            dict: Loaded configuration
-        """
-        # Get content path from factory app_config
-        content_arg = self.factory.app_config.get('cli', {}).get('content_path_arg', 'content')
-        # Get the actual path value from args (stored in factory)
-        content_path = self.factory.args.get(content_arg, 'resume.toml')
-        return self.config_manager.load(content_path)
 
 
     def _get_output_dir(self) -> Path:

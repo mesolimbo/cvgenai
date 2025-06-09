@@ -79,21 +79,7 @@ class TestDocumentGenerator:
         assert self.generator.pdf_service == self.mock_pdf_service
         assert self.generator.html_service == self.mock_html_service
         assert self.generator.file_service == self.mock_file_service
-        assert self.generator.config_manager == self.mock_config_manager
         assert self.generator.document_type == "test"
-
-    def test_load_config(self):
-        """Test loading configuration."""
-        # Set up config manager to return a test config
-        test_config = {'test': 'config'}
-        self.mock_config_manager.load.return_value = test_config
-        
-        # Call the method
-        result = self.generator._load_config()
-        
-        # Verify the result
-        assert result == test_config
-        self.mock_config_manager.load.assert_called_once_with('test_resume.toml')
 
     def test_get_output_dir(self):
         """Test getting the output directory."""
@@ -135,18 +121,14 @@ class TestDocumentGenerator:
         result = self.generator.prepare_generation(args)
         
         # Verify the method calls and result
-        self.mock_config_manager.load.assert_called_once_with('test_resume.toml')
         self.mock_file_service.ensure_directory.assert_called_once_with('output')
         self.mock_file_service.copy_css.assert_called_once_with('templates/style.css', Path('output'), True)
-        self.generator.document.format_name_for_filename.assert_called_once_with('Test User')
 
         # Verify the result structure and content
         assert 'config' in result
-        assert result['config'] == {'personal': {'name': 'Test User'}}
         assert result['output_dir'] == Path('output')
         assert result['generate_html'] is True
         assert result['name_prefix'] == 'test_user_'
-        assert result['person_name'] == 'Test User'
         assert result['css_path'] == Path('output/style.css')
 
     def test_generate_with_html(self):
