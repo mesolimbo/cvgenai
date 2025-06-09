@@ -31,9 +31,9 @@ class Factory:
         self._config_loader: IConfigLoader = ConfigManager()
         self.app_config: Dict[str, Any] = self._config_loader.load(config_path)
         self._service_instances: Dict[str, Any] = {}
-        # Store parsed command-line arguments as a dict
         self.args: Dict[str, Any] = self._parse_args()
-        # TODO: Load resume content as string once and customize with AI before parsing and passing to generators
+        self.career = self._load_career()
+        # Load resume content as string once and customize with AI before parsing and passing to generators
         #
         # e.g.
         #
@@ -87,6 +87,7 @@ class Factory:
         
         return service_instance
     
+
     def setup_argument_parser(self) -> argparse.ArgumentParser:
         """Create an argument parser with dynamically configured arguments.
         
@@ -133,7 +134,8 @@ class Factory:
                 )
         
         return parser
-    
+
+
     def _parse_args(self, args: Optional[List[str]] = None) -> Dict[str, Any]:
         """Parse command-line arguments and store them in the factory.
         
@@ -147,13 +149,23 @@ class Factory:
         parsed_args = parser.parse_args(args)
         
         return vars(parsed_args)
-    
+
+    def _load_career(self) -> Dict[str, Any]:
+        """Load content configuration using config manager.
+
+        Returns:
+            dict: Loaded configuration
+        """
+        # Get content path from factory app_config
+        content_arg = self.app_config.get('cli', {}).get('content_path_arg', 'content')
+        # Get the actual path value from args (stored in factory)
+        content_path = self.args.get(content_arg, 'resume.toml')
+        return self.get_service('config_manager').load(content_path)
+
+
     def get_generators_to_run(self) -> List[str]:
         """Determine which generators to run based on arguments and configuration.
         
-        Args:
-            args: Parsed command-line arguments
-            
         Returns:
             List[str]: List of generator names to run
         """

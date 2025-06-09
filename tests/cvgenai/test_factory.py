@@ -8,7 +8,8 @@ class TestFactory:
     """Test cases for the Factory class."""
 
     @staticmethod
-    def test_init_with_default_config():
+    @patch('cvgenai.factory.Factory.get_service', return_value=MagicMock())
+    def test_init_with_default_config(_):
         """Test initializing the factory with default config path."""
         # Patch the tomli.load function before importing Factory
         with (patch('cvgenai.config.ConfigManager.load') as mock_load,
@@ -28,7 +29,8 @@ class TestFactory:
             assert factory._service_instances == {}
 
     @staticmethod
-    def test_init_with_custom_config(monkeypatch):
+    @patch('cvgenai.factory.Factory.get_service', return_value=MagicMock())
+    def test_init_with_custom_config(_, monkeypatch):
         """Test initializing the factory with a custom config path."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -53,7 +55,10 @@ class TestFactory:
         monkeypatch.setattr(sys, 'argv', test_args)
 
         test_config = {
-            'services': {'test_service': 'test.module.TestClass'},
+            'services': {
+                'test_service': 'test.module.TestClass',
+                'config_manager': 'cvgenai.config.ConfigManager',
+            },
             'documents': {'generators': []},
             'cli': {'args': []}
         }
@@ -81,7 +86,8 @@ class TestFactory:
 
 
     @staticmethod
-    def test_get_service_cached(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_get_service_cached(_, monkeypatch):
         """Test getting a service that is already cached."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -98,23 +104,11 @@ class TestFactory:
         # Verify that the cached instance was returned
         assert service is test_service
 
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
     @patch('cvgenai.factory.importlib.import_module')
-    def test_get_service_new(self, mock_import_module, monkeypatch):
+    def test_get_service_new(self, mock_import_module, _, monkeypatch):
         """Test getting a service that needs to be instantiated."""
-        test_args = ['cli.py']
-        monkeypatch.setattr(sys, 'argv', test_args)
-
-        # Setup mocks
-        mock_class = MagicMock()
-        mock_instance = MagicMock()
-        mock_class.return_value = mock_instance
-        mock_module = MagicMock()
-        mock_module.TestClass = mock_class
-        mock_import_module.return_value = mock_module
-        
-        # Create factory with test config
-        from cvgenai.factory import Factory
-        factory = Factory()
+        factory, mock_class, mock_instance = self.setup_mocks(mock_import_module, monkeypatch)
         factory.app_config = {
             'services': {'test_service': 'test_module.TestClass'}
         }
@@ -124,13 +118,13 @@ class TestFactory:
         
         # Verify that the service was created correctly
         assert service is mock_instance
-        mock_import_module.assert_called_once_with('test_module')
         mock_class.assert_called_once()
         assert 'test_service' in factory._service_instances
         assert factory._service_instances['test_service'] is mock_instance
 
     @staticmethod
-    def test_get_service_not_in_config(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_get_service_not_in_config(_, monkeypatch):
         """Test getting a service that is not in the config."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -144,7 +138,8 @@ class TestFactory:
             factory.get_service('non_existent_service')
 
     @staticmethod
-    def test_setup_argument_parser(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_setup_argument_parser(_, monkeypatch):
         """Test setting up the argument parser with dynamic arguments."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -199,8 +194,9 @@ class TestFactory:
         assert args.test_generator is True
 
     @staticmethod
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
     @patch('cvgenai.factory.Factory._parse_args')
-    def test_get_generators_to_run_with_flags(_):
+    def test_get_generators_to_run_with_flags(_, __):
         """Test determining which generators to run when specific flags are set."""
         # Create factory with test config
         from cvgenai.factory import Factory
@@ -234,7 +230,8 @@ class TestFactory:
         assert generators == ['resume', 'cover-letter', 'other']
 
     @staticmethod
-    def test_get_generators_to_run_no_flags(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_get_generators_to_run_no_flags(_, monkeypatch):
         """Test determining which generators to run when no flags are set."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -266,7 +263,9 @@ class TestFactory:
         assert set(generators) == {'resume', 'cover-letter'}
 
     @staticmethod
-    def test_create_generator(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_create_generator(_, __, monkeypatch):
         """Test creating a document generator instance."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -300,7 +299,8 @@ class TestFactory:
             mock_generator_class.assert_called_once_with(factory=factory)
 
     @staticmethod
-    def test_create_generator_not_found(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_create_generator_not_found(_, monkeypatch):
         """Test creating a generator that doesn't exist in config."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -316,7 +316,8 @@ class TestFactory:
             factory.create_generator('non-existent')
 
     @staticmethod
-    def test_create_generator_disabled(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_create_generator_disabled(_, monkeypatch):
         """Test creating a generator that is disabled in config."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -340,7 +341,8 @@ class TestFactory:
             factory.create_generator('disabled-gen')
 
     @staticmethod
-    def test_get_enabled_generators(monkeypatch):
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    def test_get_enabled_generators(_, monkeypatch):
         """Test getting all enabled generators from config."""
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
@@ -394,6 +396,18 @@ class TestFactory:
     def test_create_instance_from_path(self, mock_import_module, monkeypatch):
         """Test creating an instance from a fully-qualified class path."""
         # Setup mocks
+        factory, mock_class, mock_instance = self.setup_mocks(mock_import_module, monkeypatch)
+
+        # Create instance from path
+        result = factory._create_instance_from_path('test_module.TestClass')
+        
+        # Verify the result
+        assert result is mock_instance
+        mock_import_module.assert_called_with('test_module')
+        mock_class.assert_called_once()
+
+    @staticmethod
+    def setup_mocks(mock_import_module, monkeypatch):
         test_args = ['cli.py']
         monkeypatch.setattr(sys, 'argv', test_args)
         mock_class = MagicMock()
@@ -402,14 +416,6 @@ class TestFactory:
         mock_module = MagicMock()
         mock_module.TestClass = mock_class
         mock_import_module.return_value = mock_module
-        
         from cvgenai.factory import Factory
         factory = Factory()
-        
-        # Create instance from path
-        result = factory._create_instance_from_path('test_module.TestClass')
-        
-        # Verify the result
-        assert result is mock_instance
-        mock_import_module.assert_called_once_with('test_module')
-        mock_class.assert_called_once()
+        return factory, mock_class, mock_instance

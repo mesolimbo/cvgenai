@@ -30,10 +30,11 @@ class TestCLI:
         mock_initialize_factory.assert_called_once()
 
 
+    @patch('cvgenai.factory.Factory.get_service', return_value=MagicMock())
     @patch('cvgenai.factory.Factory._parse_args')
     @patch('cvgenai.config.ConfigManager.load', return_value={})
     @patch('cvgenai.cli.os.environ.get')
-    def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config, _):
+    def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config, _, __):
         """Test main function with a custom config path from environment variable."""
         # Setup mock for environment variable
         mock_environ_get.return_value = 'custom_config.toml'
