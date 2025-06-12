@@ -9,8 +9,9 @@ from cvgenai.config import IConfigLoader
 
 class TestCareer:
     """Tests for the Career class."""
-    
-    def test_load(self):
+
+    @staticmethod
+    def test_load():
         """Test loading career data."""
         # Arrange
         mock_config_manager = MagicMock(spec=IConfigLoader)
@@ -24,8 +25,9 @@ class TestCareer:
         # Assert
         mock_config_manager.load.assert_called_once_with(content_path)
         assert career_data == {"personal": {"name": "Test User"}}
-        
-    def test_factory_init(self):
+
+    @staticmethod
+    def test_factory_init():
         """Test initializing with factory."""
         # Arrange
         mock_factory = MagicMock()
@@ -40,8 +42,9 @@ class TestCareer:
         
         # Assert
         assert career._config_manager == mock_config_manager
-        
-    def test_get_data(self):
+
+    @staticmethod
+    def test_get_data():
         """Test getting loaded career data."""
         # Arrange
         mock_config_manager = MagicMock(spec=IConfigLoader)
@@ -54,8 +57,9 @@ class TestCareer:
         
         # Assert
         assert career_data == {"personal": {"name": "Test User"}}
-        
-    def test_get_data_not_loaded(self):
+
+    @staticmethod
+    def test_get_data_not_loaded():
         """Test getting career data when not loaded."""
         # Arrange
         mock_config_manager = MagicMock(spec=IConfigLoader)
@@ -64,8 +68,9 @@ class TestCareer:
         # Act & Assert
         with pytest.raises(ValueError, match="Career data not loaded"):
             career.get_data()
-            
-    def test_load_no_config_manager(self):
+
+    @staticmethod
+    def test_load_no_config_manager():
         """Test loading career without a config manager."""
         # This test is no longer applicable since config_manager is now required in the constructor
         # We'll test what happens when we try to load with an invalid path instead
