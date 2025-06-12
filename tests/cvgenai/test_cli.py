@@ -1,7 +1,6 @@
 """Tests for the cli module."""
 
 from unittest.mock import patch, MagicMock, call
-from argparse import Namespace
 
 from cvgenai.cli import CLI
 
