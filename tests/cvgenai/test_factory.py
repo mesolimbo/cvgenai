@@ -58,6 +58,7 @@ class TestFactory:
             'services': {
                 'test_service': 'test.module.TestClass',
                 'config_manager': 'cvgenai.config.ConfigManager',
+                'career_service': 'cvgenai.services.career_service.CareerService',
             },
             'documents': {'generators': []},
             'cli': {'args': []}
