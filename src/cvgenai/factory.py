@@ -32,8 +32,6 @@ class Factory:
         self.app_config: Dict[str, Any] = self._config_loader.load(config_path)
         self._service_instances: Dict[str, Any] = {}
         self.args: Dict[str, Any] = self._parse_args()
-        self.career = self._load_career()
-        # Load resume content as string once and customize with AI before parsing and passing to generators
         #
         # e.g.
         #
@@ -150,17 +148,7 @@ class Factory:
         
         return vars(parsed_args)
 
-    def _load_career(self) -> Dict[str, Any]:
-        """Load content configuration using config manager.
 
-        Returns:
-            dict: Loaded configuration
-        """
-        # Get content path from factory app_config
-        content_arg = self.app_config.get('cli', {}).get('content_path_arg', 'content')
-        # Get the actual path value from args (stored in factory)
-        content_path = self.args.get(content_arg, 'resume.toml')
-        return self.get_service('config_manager').load(content_path)
 
 
     def get_generators_to_run(self) -> List[str]:

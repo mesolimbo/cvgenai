@@ -111,18 +111,23 @@ class TestDocumentGenerator:
         """Test preparing generation elements."""
         # Mock necessary methods
         self.mock_file_service.ensure_directory.return_value = Path('output')
-        self.mock_config_manager.load.return_value = {'personal': {'name': 'Test User'}}
+        
+        # Create a mock Career instance
+        mock_career = MagicMock()
+        mock_career.get_data.return_value = {'personal': {'name': 'Test User'}}
+        
         self.mock_file_service.copy_css.return_value = Path('output/style.css')
         
         # Create test args
         args = {'html': True}
         
         # Call the actual prepare_generation method
-        result = self.generator.prepare_generation(args)
+        result = self.generator.prepare_generation(args, mock_career)
         
         # Verify the method calls and result
         self.mock_file_service.ensure_directory.assert_called_once_with('output')
         self.mock_file_service.copy_css.assert_called_once_with('templates/style.css', Path('output'), True)
+        mock_career.get_data.assert_called_once()
 
         # Verify the result structure and content
         assert 'config' in result
@@ -138,11 +143,15 @@ class TestDocumentGenerator:
         self.generator.document.prepare_context.return_value = mock_context
         self.generator.document.get_template_names.return_value = ['test_template.html']
         
+        # Create a mock Career instance
+        mock_career = MagicMock()
+        mock_career.get_data.return_value = {'personal': {'name': 'Test User'}}
+        
         # Create test args
         args = {'html': True}
         
         # Call the method
-        result = self.generator.generate(args)
+        result = self.generator.generate(args, mock_career)
         
         # Verify results
         assert result['html_path'] == Path('test.html')

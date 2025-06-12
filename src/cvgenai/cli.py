@@ -1,12 +1,13 @@
 """Command-line interface for CV Gen AI."""
 
 import os
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from dotenv import load_dotenv
 
 from cvgenai.factory import Factory
 from cvgenai.generate import IDocumentGenerator
+from cvgenai.career import Career
 
 
 class CLI:
@@ -17,6 +18,31 @@ class CLI:
         """Initialize factory with configuration."""
         config_path = os.environ.get('APP_CONFIG_PATH', 'app_config.toml')
         return Factory(config_path)
+    
+    @staticmethod
+    def initialize_career(factory: Factory) -> Career:
+        """Initialize and load career data.
+        
+        Args:
+            factory: Factory instance to get config manager
+            
+        Returns:
+            Career: Initialized career instance with loaded data
+        """
+        # Get config manager from factory
+        config_manager = factory.get_service('config_manager')
+        
+        # Create career instance with config manager
+        career = Career(config_manager)
+        
+        # Get content path from args
+        content_arg = factory.app_config.get('cli', {}).get('content_path_arg', 'content')
+        content_path = factory.args[content_arg]
+        
+        # Load career data
+        career.load(content_path)
+        
+        return career
 
 
     @staticmethod
@@ -36,15 +62,21 @@ class CLI:
 
 
     @staticmethod
-    def run_generators(generators_to_run: List[str], factory: Factory) -> None:
-        """Run the specified document generators."""
+    def run_generators(generators_to_run: List[str], factory: Factory, career: Career) -> None:
+        """Run the specified document generators.
+        
+        Args:
+            generators_to_run: List of generator names to run
+            factory: Factory instance to create generators
+            career: Career instance with loaded data
+        """
         for generator_name in generators_to_run:
             try:
                 # Create generator instance from factory
                 generator: IDocumentGenerator = factory.create_generator(generator_name)
 
-                # Let the generator use the factory to get what it needs
-                generator.generate(args=factory.args)
+                # Let the generator use the factory and career to get what it needs
+                generator.generate(args=factory.args, career=career)
             except Exception as e:
                 print(f"Error generating {generator_name}: {e}")
                 continue
@@ -62,6 +94,9 @@ class CLI:
         # Initialize factory
         factory = CLI.initialize_factory()
 
+        # Initialize career
+        career = CLI.initialize_career(factory)
+
         # Determine which generators to run based on args and config
         generators_to_run: List[str] = factory.get_generators_to_run()
         enabled_generators = factory.get_enabled_generators()
@@ -70,7 +105,7 @@ class CLI:
         CLI.display_generation_options(generators_to_run, enabled_generators, factory)
 
         # Generate requested documents
-        CLI.run_generators(generators_to_run, factory)
+        CLI.run_generators(generators_to_run, factory, career)
 
 
 if __name__ == '__main__':

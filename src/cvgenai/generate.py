@@ -4,17 +4,19 @@ from typing import Dict, List, Optional, Any, Tuple, Union
 
 from cvgenai.document import ResumeDocument, CoverLetterDocument
 from cvgenai.factory import Factory
+from cvgenai.career import Career
 
 # Factory module interface for creating service and generator instances based on configuration
 class IDocumentGenerator(ABC):
     """Interface for document generators."""
     
     @abstractmethod
-    def generate(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    def generate(self, args: Dict[str, Any], career: 'Career') -> Dict[str, Any]:
         """Generate document files.
         
         Args:
             args: Command-line arguments
+            career: Career instance with loaded data
             
         Returns:
             dict: Paths to generated files and other results
@@ -55,11 +57,12 @@ class DocumentGenerator(IDocumentGenerator):
         self.css_path = elements['css_path']
 
 
-    def generate(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    def generate(self, args: Dict[str, Any], career: Career) -> Dict[str, Any]:
         """Generate document files.
         
         Args:
             args: Command-line arguments
+            career: Career instance with loaded data
             
         Returns:
             dict: Paths to generated files and other results
@@ -68,7 +71,7 @@ class DocumentGenerator(IDocumentGenerator):
         print(f"\nGenerating {self.document_type.title()} document(s)")
         
         # Prepare common elements
-        elements = self.prepare_generation(args)
+        elements = self.prepare_generation(args, career)
 
         self.load_elements(elements)
         
@@ -80,11 +83,12 @@ class DocumentGenerator(IDocumentGenerator):
         return self.generate_output_files(elements, context, template_names)
 
 
-    def prepare_generation(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_generation(self, args: Dict[str, Any], career: Career) -> Dict[str, Any]:
         """Prepare common elements for document generation.
 
         Args:
             args: Command-line arguments
+            career: Career instance with loaded data
 
         Returns:
             dict: Common elements needed for generation
@@ -95,14 +99,17 @@ class DocumentGenerator(IDocumentGenerator):
         # Determine whether to generate HTML from args
         generate_html = args['html']
 
+        # Get career data from provided career instance
+        career_data = career.get_data()
+
         # Get name prefix for files
-        name_prefix, person_name = self._get_name_prefix(self.factory.career)
+        name_prefix, person_name = self._get_name_prefix(career_data)
 
         # Copy CSS only if generating HTML
         css_path = self.file_service.copy_css('templates/style.css', output_dir, generate_html)
 
         return {
-            'config': self.factory.career,
+            'config': career_data,
             'output_dir': output_dir,
             'generate_html': generate_html,
             'name_prefix': name_prefix,
