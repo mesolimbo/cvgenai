@@ -29,7 +29,8 @@ class CVGenController:
         # Initialize career
         self.career = self._initialize_career()
 
-    def _initialize_factory(self) -> Factory:
+    @staticmethod
+    def _initialize_factory() -> Factory:
         """Initialize factory with configuration.
         
         Returns:

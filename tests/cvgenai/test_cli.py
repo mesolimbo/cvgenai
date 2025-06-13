@@ -1,6 +1,6 @@
 """Tests for the cli module."""
 
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 
 from cvgenai.cli import CLI
 
@@ -95,7 +95,8 @@ class TestCLI:
         # Verify fatal error message was printed
         mock_print.assert_any_call("Fatal error: Initialization failed")
 
-    def test_display_generation_options(self):
+    @staticmethod
+    def test_display_generation_options():
         """Test display of generation options."""
         generators_to_run = ['resume', 'cover_letter']
         enabled_generators = [
@@ -116,7 +117,8 @@ class TestCLI:
             mock_print.assert_any_call("Using content from: test_resume.toml")
             mock_print.assert_any_call("---")
 
-    def test_display_errors_no_errors(self):
+    @staticmethod
+    def test_display_errors_no_errors():
         """Test display when no errors occurred."""
         cli = CLI()
         
@@ -125,7 +127,8 @@ class TestCLI:
             
             mock_print.assert_called_once_with("\nGeneration completed successfully!")
 
-    def test_display_errors_with_errors(self):
+    @staticmethod
+    def test_display_errors_with_errors():
         """Test display when errors occurred."""
         cli = CLI()
         errors = ["Error 1", "Error 2"]
