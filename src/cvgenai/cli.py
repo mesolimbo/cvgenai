@@ -1,112 +1,70 @@
 """Command-line interface for CV Gen AI."""
 
-import os
-from typing import List, Dict, Any
+from typing import List, Dict
 
-from dotenv import load_dotenv
-
-from cvgenai.factory import Factory
-from cvgenai.generate import IDocumentGenerator
-from cvgenai.career import Career
+from cvgenai.controller import CVGenController
 
 
 class CLI:
     """Command-line interface handler for CV Gen AI."""
 
-    @staticmethod
-    def initialize_factory() -> Factory:
-        """Initialize factory with configuration."""
-        config_path = os.environ.get('APP_CONFIG_PATH', 'app_config.toml')
-        return Factory(config_path)
-    
-    @staticmethod
-    def initialize_career(factory: Factory) -> Career:
-        """Initialize and load career data.
+    def __init__(self):
+        """Initialize the CLI with a controller."""
+        self.controller = CVGenController()
+
+    def display_generation_options(self, generators_to_run: List[str], enabled_generators: List[Dict], content_path: str) -> None:
+        """Display information about what will be generated.
         
         Args:
-            factory: Factory instance to get config manager
-            
-        Returns:
-            Career: Initialized career instance with loaded data
+            generators_to_run: List of generator names that will be run
+            enabled_generators: List of enabled generator configurations
+            content_path: Path to the content being used
         """
-        # Get config manager from factory
-        config_manager = factory.get_service('config_manager')
-        
-        # Create career instance with config manager
-        career = Career(config_manager)
-        
-        # Get content path from args
-        content_arg = factory.app_config.get('cli', {}).get('content_path_arg', 'content')
-        content_path = factory.args[content_arg]
-        
-        # Load career data
-        career.load(content_path)
-        
-        return career
-
-
-    @staticmethod
-    def display_generation_options(generators_to_run: List[str], enabled_generators: List[Dict], factory: Factory) -> None:
-        """Display information about what will be generated."""
         print("Generating documents with the following options:")
         for generator_name in generators_to_run:
             generator_config = next((gen for gen in enabled_generators if gen['name'] == generator_name), None)
             if generator_config:
                 print(f"- {generator_config['description']}")
 
-        # Get content path from args just for display purpose
-        content_arg = factory.app_config.get('cli', {}).get('content_path_arg', 'content')
-        content_path = factory.args[content_arg]
         print(f"Using content from: {content_path}")
         print("---")
 
-
-    @staticmethod
-    def run_generators(generators_to_run: List[str], factory: Factory, career: Career) -> None:
-        """Run the specified document generators.
+    def display_errors(self, errors: List[str]) -> None:
+        """Display any errors that occurred during generation.
         
         Args:
-            generators_to_run: List of generator names to run
-            factory: Factory instance to create generators
-            career: Career instance with loaded data
+            errors: List of error messages
         """
-        for generator_name in generators_to_run:
-            try:
-                # Create generator instance from factory
-                generator: IDocumentGenerator = factory.create_generator(generator_name)
+        if errors:
+            print("\nErrors occurred during generation:")
+            for error in errors:
+                print(f"- {error}")
+        else:
+            print("\nGeneration completed successfully!")
 
-                # Let the generator use the factory and career to get what it needs
-                generator.generate(args=factory.args, career=career)
-            except Exception as e:
-                print(f"Error generating {generator_name}: {e}")
-                continue
+    def run(self) -> None:
+        """Run the CV generation process."""
+        try:
+            # Initialize the controller
+            self.controller.initialize()
 
-        # Print a summary of what was generated
-        print("\nGeneration completed successfully!")
+            # Get generation information
+            generators_to_run, enabled_generators, content_path = self.controller.get_generation_info()
 
+            # Display what will be generated
+            self.display_generation_options(generators_to_run, enabled_generators, content_path)
 
-    @staticmethod
-    def main() -> None:
-        """Parse command line arguments and run document generation."""
-        # Load API key as environment variables from .env file
-        load_dotenv()
+            # Generate documents
+            errors = self.controller.generate_documents()
 
-        # Initialize factory
-        factory = CLI.initialize_factory()
+            # Display results
+            self.display_errors(errors)
 
-        # Initialize career
-        career = CLI.initialize_career(factory)
-
-        # Determine which generators to run based on args and config
-        generators_to_run: List[str] = factory.get_generators_to_run()
-        enabled_generators = factory.get_enabled_generators()
-
-        # Display generation options
-        CLI.display_generation_options(generators_to_run, enabled_generators, factory)
-
-        # Generate requested documents
-        CLI.run_generators(generators_to_run, factory, career)
+        except Exception as e:
+            print(f"Fatal error: {e}")
+            return
 
 
 if __name__ == '__main__':
-    CLI.main()
+    cli = CLI()
+    cli.run()

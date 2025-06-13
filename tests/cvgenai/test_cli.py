@@ -8,164 +8,131 @@ from cvgenai.cli import CLI
 class TestCLI:
     """Test cases for command-line interface functions."""
 
-    @patch('cvgenai.cli.CLI.initialize_factory')
-    @patch('cvgenai.cli.load_dotenv')
-    def test_main_initialization(self, mock_load_dotenv, mock_initialize_factory):
-        """Test the initialization of the Factory in main function."""
-        # Setup mock
-        mock_factory_instance = MagicMock()
-        mock_initialize_factory.return_value = mock_factory_instance
-        mock_factory_instance.args = {'content': 'test_resume.toml'}
-        mock_factory_instance.get_generators_to_run.return_value = []
-        mock_factory_instance.get_enabled_generators.return_value = []
-
-        # Set up app_config with a string value for content_path_arg
-        mock_factory_instance.app_config = {'cli': {'content_path_arg': 'content'}}
-
-        # Patch the initialize_career method
-        with patch('cvgenai.cli.CLI.initialize_career') as mock_initialize_career:
-            mock_career_instance = MagicMock()
-            mock_initialize_career.return_value = mock_career_instance
-            
-            # Call function
-            CLI.main()
-
-            # Verify Factory was initialized with correct config path
-            mock_initialize_factory.assert_called_once()
-            mock_initialize_career.assert_called_once_with(mock_factory_instance)
-
-
-    @patch('cvgenai.cli.Career')
-    def test_initialize_career(self, mock_career_class):
-        """Test the initialization of Career in CLI."""
-        # Setup mocks
-        mock_factory = MagicMock()
-        mock_factory.app_config = {'cli': {'content_path_arg': 'content'}}
-        mock_factory.args = {'content': 'test_resume.toml'}
+    @patch('cvgenai.cli.CVGenController')
+    def test_cli_initialization(self, mock_controller_class):
+        """Test CLI initialization with controller."""
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
         
-        mock_config_manager = MagicMock()
-        mock_factory.get_service.return_value = mock_config_manager
+        cli = CLI()
         
-        mock_career_instance = MagicMock()
-        mock_career_class.return_value = mock_career_instance
+        # Verify controller was instantiated
+        mock_controller_class.assert_called_once()
+        assert cli.controller == mock_controller
+
+    @patch('cvgenai.cli.CVGenController')
+    @patch('builtins.print')
+    def test_cli_run_success(self, mock_print, mock_controller_class):
+        """Test successful CLI run."""
+        # Setup controller mock
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
         
-        # Call method
-        result = CLI.initialize_career(mock_factory)
-        
-        # Verify Career was created with config_manager
-        mock_factory.get_service.assert_called_once_with('config_manager')
-        mock_career_class.assert_called_once_with(mock_config_manager)
-        
-        # Verify career.load was called with correct path
-        mock_career_instance.load.assert_called_once_with('test_resume.toml')
-        
-        # Verify correct instance was returned
-        assert result == mock_career_instance
-
-
-    @patch('cvgenai.factory.Factory.get_service', return_value=MagicMock())
-    @patch('cvgenai.factory.Factory._parse_args')
-    @patch('cvgenai.config.ConfigManager.load', return_value={})
-    @patch('cvgenai.cli.os.environ.get')
-    def test_main_with_custom_config_path(self, mock_environ_get, mock_load_app_config, _, __):
-        """Test main function with a custom config path from environment variable."""
-        # Setup mock for environment variable
-        mock_environ_get.return_value = 'custom_config.toml'
-
-        # Call the initialize_factory method directly
-        CLI.initialize_factory()
-
-        # Verify environment variable was checked
-        mock_environ_get.assert_called_once_with('APP_CONFIG_PATH', 'app_config.toml')
-
-        # Verify the factory attempted to load the custom config
-        mock_load_app_config.assert_called_once_with('custom_config.toml')
-
-
-    @staticmethod
-    def set_up_mocks(mock_initialize_factory, mock_initialize_career=None):
-        # Setup mocks
-        mock_factory_instance = MagicMock()
-        mock_initialize_factory.return_value = mock_factory_instance
-        # Mock args
-        mock_factory_instance.args = {'content': 'test_resume.toml'}
-        # Mock generators to run
-        mock_factory_instance.get_generators_to_run.return_value = ['resume', 'cover_letter']
-        # Mock enabled generators
-        mock_factory_instance.get_enabled_generators.return_value = [
+        # Setup generation info
+        generators_to_run = ['resume', 'cover_letter']
+        enabled_generators = [
             {'name': 'resume', 'description': 'Resume Generator'},
             {'name': 'cover_letter', 'description': 'Cover Letter Generator'}
         ]
-        # Mock app config
-        mock_factory_instance.app_config = {'cli': {'content_path_arg': 'content'}}
+        content_path = 'test_resume.toml'
         
-        # Mock generator instances
-        mock_resume_generator = MagicMock()
-        mock_cover_letter_generator = MagicMock()
+        mock_controller.get_generation_info.return_value = (
+            generators_to_run, enabled_generators, content_path
+        )
+        mock_controller.generate_documents.return_value = []  # No errors
         
-        # Mock career instance if provided
-        if mock_initialize_career:
-            mock_career_instance = MagicMock()
-            mock_initialize_career.return_value = mock_career_instance
-            return mock_cover_letter_generator, mock_factory_instance, mock_resume_generator, mock_career_instance
-        else:
-            return mock_cover_letter_generator, mock_factory_instance, mock_resume_generator
+        # Create and run CLI
+        cli = CLI()
+        cli.run()
+        
+        # Verify controller methods were called
+        mock_controller.initialize.assert_called_once()
+        mock_controller.get_generation_info.assert_called_once()
+        mock_controller.generate_documents.assert_called_once()
+        
+        # Verify success message was printed
+        mock_print.assert_any_call("\nGeneration completed successfully!")
 
-
-    @patch('cvgenai.cli.CLI.initialize_factory')
-    @patch('cvgenai.cli.CLI.initialize_career')
-    def test_main_generator_execution(self, mock_initialize_career, mock_initialize_factory):
-        """Test that generators are correctly executed in main."""
-        (mock_cover_letter_generator,
-         mock_factory_instance,
-         mock_resume_generator,
-         mock_career_instance) = self.set_up_mocks(mock_initialize_factory, mock_initialize_career)
-
-        # Configure create_generator to return different generators based on name
-        mock_factory_instance.create_generator.side_effect = lambda name: {
-            'resume': mock_resume_generator,
-            'cover_letter': mock_cover_letter_generator
-        }[name]
-
-        # Call function
-        CLI.main()
-
-        # Verify that both generators were created and called
-        assert mock_factory_instance.create_generator.call_count == 2
-        mock_factory_instance.create_generator.assert_has_calls([
-            call('resume'),
-            call('cover_letter')
-        ])
-
-        # Verify both generators were executed with correct arguments
-        mock_resume_generator.generate.assert_called_once_with(args=mock_factory_instance.args, career=mock_career_instance)
-        mock_cover_letter_generator.generate.assert_called_once_with(args=mock_factory_instance.args, career=mock_career_instance)
-
-
-    @patch('cvgenai.cli.CLI.initialize_factory')
-    @patch('cvgenai.cli.CLI.initialize_career')
+    @patch('cvgenai.cli.CVGenController')
     @patch('builtins.print')
-    def test_main_with_generator_error(self, mock_print, mock_initialize_career, mock_initialize_factory):
-        """Test error handling when a generator raises an exception."""
-        (mock_cover_letter_generator,
-         mock_factory_instance,
-         mock_resume_generator,
-         mock_career_instance) = self.set_up_mocks(mock_initialize_factory, mock_initialize_career)
+    def test_cli_run_with_errors(self, mock_print, mock_controller_class):
+        """Test CLI run with errors."""
+        # Setup controller mock
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        
+        # Setup generation info
+        generators_to_run = ['resume']
+        enabled_generators = [{'name': 'resume', 'description': 'Resume Generator'}]
+        content_path = 'test_resume.toml'
+        
+        mock_controller.get_generation_info.return_value = (
+            generators_to_run, enabled_generators, content_path
+        )
+        mock_controller.generate_documents.return_value = ['Error generating resume: Test error']
+        
+        # Create and run CLI
+        cli = CLI()
+        cli.run()
+        
+        # Verify error message was printed
+        mock_print.assert_any_call("\nErrors occurred during generation:")
+        mock_print.assert_any_call("- Error generating resume: Test error")
 
-        # Make the resume generator raise an exception
-        mock_resume_generator.generate.side_effect = Exception("Test error")
+    @patch('cvgenai.cli.CVGenController')
+    @patch('builtins.print')
+    def test_cli_run_with_exception(self, mock_print, mock_controller_class):
+        """Test CLI run when controller initialization fails."""
+        # Setup controller mock to raise exception
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.initialize.side_effect = Exception("Initialization failed")
+        
+        # Create and run CLI
+        cli = CLI()
+        cli.run()
+        
+        # Verify fatal error message was printed
+        mock_print.assert_any_call("Fatal error: Initialization failed")
 
-        # Configure create_generator to return different generators based on name
-        mock_factory_instance.create_generator.side_effect = lambda name: {
-            'resume': mock_resume_generator,
-            'cover_letter': mock_cover_letter_generator
-        }[name]
+    def test_display_generation_options(self):
+        """Test display of generation options."""
+        generators_to_run = ['resume', 'cover_letter']
+        enabled_generators = [
+            {'name': 'resume', 'description': 'Resume Generator'},
+            {'name': 'cover_letter', 'description': 'Cover Letter Generator'}
+        ]
+        content_path = 'test_resume.toml'
+        
+        cli = CLI()
+        
+        with patch('builtins.print') as mock_print:
+            cli.display_generation_options(generators_to_run, enabled_generators, content_path)
+            
+            # Verify correct output
+            mock_print.assert_any_call("Generating documents with the following options:")
+            mock_print.assert_any_call("- Resume Generator")
+            mock_print.assert_any_call("- Cover Letter Generator")
+            mock_print.assert_any_call("Using content from: test_resume.toml")
+            mock_print.assert_any_call("---")
 
-        # Call function
-        CLI.main()
+    def test_display_errors_no_errors(self):
+        """Test display when no errors occurred."""
+        cli = CLI()
+        
+        with patch('builtins.print') as mock_print:
+            cli.display_errors([])
+            
+            mock_print.assert_called_once_with("\nGeneration completed successfully!")
 
-        # Verify error handling: should print error message but continue execution
-        mock_print.assert_any_call("Error generating resume: Test error")
-
-        # Verify the second generator was still executed despite the first one failing
-        mock_cover_letter_generator.generate.assert_called_once_with(args=mock_factory_instance.args, career=mock_career_instance)
+    def test_display_errors_with_errors(self):
+        """Test display when errors occurred."""
+        cli = CLI()
+        errors = ["Error 1", "Error 2"]
+        
+        with patch('builtins.print') as mock_print:
+            cli.display_errors(errors)
+            
+            mock_print.assert_any_call("\nErrors occurred during generation:")
+            mock_print.assert_any_call("- Error 1")
+            mock_print.assert_any_call("- Error 2")
