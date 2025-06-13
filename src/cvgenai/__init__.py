@@ -2,7 +2,10 @@
 
 from .cli import CLI
 
-# Export the main function for backwards compatibility
-main = CLI.main
+# Export a main function that creates and runs CLI for backwards compatibility
+def main():
+    """Main entry point for CV Generation."""
+    cli = CLI()
+    cli.run()
 
 __all__ = ["main", "CLI"]
