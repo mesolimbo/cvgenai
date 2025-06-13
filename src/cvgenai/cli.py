@@ -12,7 +12,8 @@ class CLI:
         """Initialize the CLI with a controller."""
         self.controller = CVGenController()
 
-    def display_generation_options(self, generators_to_run: List[str], enabled_generators: List[Dict], content_path: str) -> None:
+    @staticmethod
+    def display_generation_options(generators_to_run: List[str], enabled_generators: List[Dict], content_path: str) -> None:
         """Display information about what will be generated.
         
         Args:
@@ -29,7 +30,8 @@ class CLI:
         print(f"Using content from: {content_path}")
         print("---")
 
-    def display_errors(self, errors: List[str]) -> None:
+    @staticmethod
+    def display_errors(errors: List[str]) -> None:
         """Display any errors that occurred during generation.
         
         Args:

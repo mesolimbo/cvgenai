@@ -8,7 +8,8 @@ from cvgenai.controller import CVGenController
 class TestCVGenController:
     """Test cases for the CVGenController class."""
 
-    def test_controller_initialization(self):
+    @staticmethod
+    def test_controller_initialization():
         """Test controller initialization."""
         controller = CVGenController()
         
@@ -83,7 +84,8 @@ class TestCVGenController:
         mock_career.load.assert_called_once_with('test_resume.toml')
         assert result == mock_career
 
-    def test_get_generation_info(self):
+    @staticmethod
+    def test_get_generation_info():
         """Test getting generation information."""
         # Setup controller with mock factory
         controller = CVGenController()
@@ -109,7 +111,8 @@ class TestCVGenController:
         assert result_enabled == enabled_generators
         assert result_path == 'test_resume.toml'
 
-    def test_generate_documents_success(self):
+    @staticmethod
+    def test_generate_documents_success():
         """Test successful document generation."""
         # Setup controller
         controller = CVGenController()
@@ -145,7 +148,8 @@ class TestCVGenController:
             args=controller.factory.args, career=controller.career
         )
 
-    def test_generate_documents_with_errors(self):
+    @staticmethod
+    def test_generate_documents_with_errors():
         """Test document generation with errors."""
         # Setup controller
         controller = CVGenController()
