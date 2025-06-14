@@ -1,11 +1,12 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from cvgenai.services.customizer_service import CustomizerService
 
 
 class TestCustomizerService:
     @staticmethod
-    def test_customize_passthrough():
+    @patch("os.environ.get", return_value=None)
+    def test_customize_passthrough(*_):
         service = CustomizerService(client=None)
         resume = "name = 'Test'"
         result = service.customize(resume, "job")

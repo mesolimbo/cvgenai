@@ -7,10 +7,9 @@ from cvgenai.controller import CVGenController
 class TestCVGenController:
     """Test cases for the CVGenController class."""
 
-    @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
-    def test_initialize(self, mock_career_class, mock_factory_class, mock_load_dotenv):
+    def test_initialize(self, mock_career_class, mock_factory_class):
         """Test controller initialization."""
         # Setup mocks
         mock_factory = MagicMock()
@@ -35,7 +34,6 @@ class TestCVGenController:
         controller = CVGenController()
         
         # Verify initialization steps
-        mock_load_dotenv.assert_called_once()
         mock_factory_class.assert_called_once()
         mock_career_class.assert_called_once_with(mock_config_manager)
         mock_file_service.safe_read.assert_any_call('test_resume.toml')
@@ -58,7 +56,6 @@ class TestCVGenController:
         mock_factory_class.assert_called_with('custom_config.toml')
         assert result == mock_factory
 
-    @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
     def test_initialize_career(self, mock_career_class, *_):
@@ -97,7 +94,6 @@ class TestCVGenController:
         assert result == mock_career
 
     @staticmethod
-    @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
     def test_get_generation_info(*_):
@@ -127,7 +123,6 @@ class TestCVGenController:
         assert result_path == 'test_resume.toml'
 
     @staticmethod
-    @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
     def test_generate_documents_success(*_):
@@ -167,7 +162,6 @@ class TestCVGenController:
         )
 
     @staticmethod
-    @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
     def test_generate_documents_with_errors(*_):

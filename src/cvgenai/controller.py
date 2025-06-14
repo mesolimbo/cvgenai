@@ -2,8 +2,6 @@
 import os
 from typing import List, Dict, Tuple
 
-from dotenv import load_dotenv
-
 from cvgenai.factory import Factory
 from cvgenai.generate import IDocumentGenerator
 from cvgenai.career import Career
@@ -13,9 +11,6 @@ class CVGenController:
 
     def __init__(self):
         """Initialize the controller with factory and career data."""
-        # Load environment variables
-        load_dotenv()
-
         self.factory = self._initialize_factory()
         self.career = self._initialize_career()
 
