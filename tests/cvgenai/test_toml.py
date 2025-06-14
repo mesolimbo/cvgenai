@@ -2,7 +2,9 @@
 
 import os
 import pytest
+import shutil
 import tempfile
+
 from cvgenai.config import ConfigManager
 
 
@@ -12,33 +14,34 @@ class TestConfigManager:
     @staticmethod
     def test_load_valid_toml():
         """Test loading a valid TOML file."""
-        with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".toml") as tmp:
-            tmp.write(b'''
-                [app]
-                name = "CVGenAI"
-                version = "1.0.0"
-                
-                [settings]
-                template_dir = "templates"
-                output_dir = "output"
-            ''')
-            tmp_path = tmp.name
+        current_dir = os.getcwd()
+        temp_dir = os.path.join(current_dir, "temp_test_dir")
 
         try:
+            os.makedirs(temp_dir, exist_ok=True)
+            temp_file_path = os.path.join(temp_dir, "config.toml")
+            with open(temp_file_path, "wb") as tmp:
+                tmp.write(b'''
+                    [app]
+                    name = "CVGenAI"
+                    version = "1.0.0"
+
+                    [settings]
+                    template_dir = "templates"
+                    output_dir = "output"
+                ''')
+
             # Test with ConfigManager
             config_manager = ConfigManager()
-            config = config_manager.load(tmp_path)
-            
+            config = config_manager.load(temp_file_path)
+
             assert config["app"]["name"] == "CVGenAI"
             assert config["app"]["version"] == "1.0.0"
             assert config["settings"]["template_dir"] == "templates"
             assert config["settings"]["output_dir"] == "output"
-            
-            # Test with legacy function
-            legacy_config = config_manager.load(tmp_path)
-            assert legacy_config == config
+
         finally:
-            os.unlink(tmp_path)
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     @staticmethod
     def test_load_nonexistent_file():
