@@ -1,6 +1,6 @@
 """Tests for the TOML configuration manager."""
-
 import os
+from pathlib import Path
 import pytest
 import shutil
 import tempfile
@@ -10,7 +10,6 @@ from cvgenai.config import ConfigManager
 
 class TestConfigManager:
     """Test cases for the ConfigManager class."""
-
     @staticmethod
     def test_load_valid_toml():
         """Test loading a valid TOML file."""
@@ -66,3 +65,21 @@ class TestConfigManager:
                 config_manager.load(tmp_path)
         finally:
             os.unlink(tmp_path)
+
+    @staticmethod
+    def test_load_with_customizer(tmp_path):
+        """Test load supports a customizer returning modified TOML."""
+        content = "[section]\nname = 'orig'"
+        project_root = Path(__file__).resolve().parents[2]
+        test_dir = project_root / "temp_customizer"
+        test_dir.mkdir(exist_ok=True)
+        file_path = test_dir / "resume.toml"
+        file_path.write_text(content)
+
+        def customizer(_: str) -> str:
+            return "[section]\nname = 'custom'"
+
+        manager = ConfigManager()
+        result = manager.load(str(file_path), customizer)
+        assert result == {"section": {"name": "custom"}}
+        shutil.rmtree(test_dir)
