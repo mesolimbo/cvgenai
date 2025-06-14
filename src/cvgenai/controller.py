@@ -14,19 +14,11 @@ class CVGenController:
     """Controller class that handles the core business logic for CV generation."""
 
     def __init__(self):
-        """Initialize the controller."""
-        self.factory: Factory = None
-        self.career: Career = None
-
-    def initialize(self) -> None:
         """Initialize the controller with factory and career data."""
         # Load environment variables
         load_dotenv()
-        
-        # Initialize factory
+
         self.factory = self._initialize_factory()
-        
-        # Initialize career
         self.career = self._initialize_career()
 
     @staticmethod

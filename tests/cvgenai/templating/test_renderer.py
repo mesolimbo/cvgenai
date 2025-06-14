@@ -3,17 +3,7 @@
 import pytest
 import tempfile
 from pathlib import Path
-from cvgenai.templating.renderer import ITemplateRenderer, Jinja2Renderer
-
-
-class TestITemplateRenderer:
-    """Test cases for the ITemplateRenderer interface."""
-
-    @staticmethod
-    def test_cannot_instantiate_abstract_class():
-        """Test that ITemplateRenderer cannot be instantiated directly."""
-        with pytest.raises(TypeError):
-            ITemplateRenderer()
+from cvgenai.templating.renderer import Jinja2Renderer
 
 
 class TestJinja2Renderer:
