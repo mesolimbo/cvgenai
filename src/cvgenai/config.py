@@ -8,7 +8,7 @@ class IConfigLoader(ABC):
     """Interface for configuration loaders."""
     
     @abstractmethod
-    def load(self, config_path):
+    def load(self, config_path, customize_lambda=None):
         """Load configuration from a file path."""
         pass
 
@@ -16,17 +16,22 @@ class IConfigLoader(ABC):
 class ConfigManager(IConfigLoader):
     """TOML configuration manager."""
     
-    def load(self, config_path):
+    def load(self, config_path, customize_lambda=None):
         """Load configuration from TOML file.
         
         Args:
-            config_path: Path to the TOML configuration file
+            config_path: Path to the TOML configuration file or a TOML string
+            customize_lambda: Optional lambda function to modify the content before loading
 
         Returns:
             dict: Loaded configuration
         """
-        if not config_path.endswith('.toml'):
-            raise ValueError("Invalid configuration file format. Expected a .toml file.")
-
         with open(config_path, 'rb') as f:
-            return tomli.load(f)
+            # Read content of file as string
+            content = f.read().decode('utf-8')
+
+            # Use customizer lambda service to modify the content
+            if customize_lambda:
+                content = customize_lambda(content)
+
+            return tomli.loads(content)
