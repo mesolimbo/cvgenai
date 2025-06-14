@@ -1,5 +1,7 @@
+import os
 from typing import Optional
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
 
@@ -17,11 +19,24 @@ class CustomizerService:
             Optional pre-configured ``OpenAI`` client. If ``None`` the service
             operates in passthrough mode.
         """
-        self.client = client
+        # Initialize the OpenAI client if not provided and environment variable is set
+        load_dotenv()
+        key = os.environ.get('OPENAI_API_KEY')
+        if client is None and key:
+            self.client = OpenAI(
+                # This is the default and can be omitted
+                api_key=key,
+            )
+        else:
+            self.client = client
+
         self.instructions = (
             "You are an expert resume editor who can tailors resumes to specific job descriptions. "
             "Your output must be valid TOML format, and it must maintain the resume structure of the TOML provided. "
-            "We have layout restrictions, so each section in your edits should be similar in length to the original."
+            "We have very strict layout restrictions, so each sentence/line you modify should be nearly identical in length to the original sentence. You must also keep the length of lists the same, so if you add a new item to a list, you must also remove an item from the list. "
+            "You must preserve all the original whitespace and empty lines in the document. "
+            "Please do not wrap the content in ```toml and ``` and that will not be parseable. "
+            "Under no circumstance may you change job titles or dates, as that information must remain a valid verifiable reference. "
         )
         self.model = model
 

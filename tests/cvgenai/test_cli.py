@@ -79,7 +79,6 @@ class TestCLI:
         mock_print.assert_any_call("- Error generating resume: Test error")
 
     @staticmethod
-    @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
     def test_display_generation_options(*_):
