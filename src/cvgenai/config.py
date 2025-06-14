@@ -1,7 +1,9 @@
 """TOML configuration manager for CV Gen AI."""
 
-import tomli
 from abc import ABC, abstractmethod
+import os
+
+import tomli
 
 # Config loader interface
 class IConfigLoader(ABC):
@@ -26,7 +28,14 @@ class ConfigManager(IConfigLoader):
         Returns:
             dict: Loaded configuration
         """
-        with open(config_path, 'rb') as f:
+        # Raise an error if the file is outside the current directory
+        current_dir = os.path.abspath(os.getcwd())
+        config_full_path = os.path.abspath(config_path)
+
+        if not config_full_path.startswith(current_dir):
+            raise ValueError("Configuration file path must be within the current directory.")
+
+        with open(config_full_path, 'rb') as f:
             # Read content of file as string
             content = f.read().decode('utf-8')
 
