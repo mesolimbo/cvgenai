@@ -10,6 +10,7 @@ from cvgenai.career import Career
 
 class CVGenController:
     """Controller class that handles the core business logic for CV generation."""
+
     def __init__(self):
         """Initialize the controller with factory and career data."""
         # Load environment variables
@@ -55,11 +56,7 @@ class CVGenController:
             except (FileNotFoundError, ValueError):
                 job_description = ''
 
-        customize_lambda = None
-        if job_description:
-            def customize_lambda(content: str) -> str:
-                return customizer.customize(content, job_description)
-
+        customize_lambda = (lambda content: customizer.customize(content, job_description)) if job_description else None
         resume_text = file_service.safe_read(content_path)
         career.load(resume_text, customize_lambda)
         

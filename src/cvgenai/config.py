@@ -7,6 +7,7 @@ import tomli
 # Config loader interface
 class IConfigLoader(ABC):
     """Interface for configuration loaders."""
+
     @abstractmethod
     def load(self, config_path, customize_lambda=None):
         """Load configuration from a file path."""
@@ -15,6 +16,7 @@ class IConfigLoader(ABC):
 # Reference TOML ConfigLoader Implementation
 class ConfigManager(IConfigLoader):
     """TOML configuration manager."""
+
     def load(self, config_source, customize_lambda=None):
         """Load configuration from TOML text or file.
 

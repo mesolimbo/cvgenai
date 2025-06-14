@@ -5,6 +5,7 @@ from openai import OpenAI
 
 class CustomizerService:
     """Service to customize resumes based on job descriptions using OpenAI's LLM API."""
+
     def __init__(self, model: str = "gpt-4.1", client: Optional[OpenAI] = None):
         """Create the service.
 

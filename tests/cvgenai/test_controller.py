@@ -6,6 +6,7 @@ from cvgenai.controller import CVGenController
 
 class TestCVGenController:
     """Test cases for the CVGenController class."""
+
     @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')

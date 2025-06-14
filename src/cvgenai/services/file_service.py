@@ -56,12 +56,12 @@ class FileService:
         ValueError
             If the file path is outside the project directory.
         """
-        project_root = Path(__file__).resolve().parents[2]
+        project_root = Path(__file__).resolve().parents[3]
         abs_path = Path(file_path).resolve()
 
         if not str(abs_path).startswith(str(project_root)):
             raise ValueError(
-                f"File path must be within the project directory: {project_root}"
+                f"File {abs_path} must be within the project directory: {project_root}"
             )
 
         with abs_path.open('r', encoding='utf-8') as f:
