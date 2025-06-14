@@ -10,6 +10,7 @@ from cvgenai.config import ConfigManager
 
 class TestConfigManager:
     """Test cases for the ConfigManager class."""
+
     @staticmethod
     def test_load_valid_toml():
         """Test loading a valid TOML file."""
