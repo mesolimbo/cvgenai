@@ -173,17 +173,30 @@ class DocumentGenerator(IDocumentGenerator):
 
     def _get_name_prefix(self, config: Dict[str, Any]) -> Tuple[str, str]:
         """Get formatted name prefix for filenames.
-        
+
+        This combines the person's name with the provided job file name (if any)
+        so that output files are unique per job application.
+
         Args:
             config: Configuration dictionary
-            
+
         Returns:
             tuple: (name_prefix, person_name)
         """
         person_name = config.get('personal', {}).get('name', '')
-        name_prefix = self.document.format_name_for_filename(person_name)
+        name_part = self.document.format_name_for_filename(person_name)
+
+        job_path = self.factory.args.get('job')
+        job_part = ''
+        if job_path:
+            job_stem = Path(job_path).stem
+            job_part = self.document.format_name_for_filename(job_stem)
+
+        prefix_parts = [p for p in (name_part, job_part) if p]
+        name_prefix = "_".join(prefix_parts)
         if name_prefix:
             name_prefix += "_"
+
         return name_prefix, person_name
 
 

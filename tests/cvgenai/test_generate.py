@@ -68,9 +68,9 @@ class TestDocumentGenerator:
         
         # Instantiate the test class
         self.generator = TestDocGen(self.mock_factory)
-        
-        # Mock the document's format_name_for_filename method
-        self.generator.document.format_name_for_filename.return_value = "test_user"
+
+        # Mock format_name_for_filename to return a simple transformation
+        self.generator.document.format_name_for_filename.side_effect = lambda x: x.replace(' ', '_').lower()
 
     def test_initialization(self):
         """Test the initialization process."""
@@ -98,7 +98,7 @@ class TestDocumentGenerator:
         """Test getting the name prefix."""
         # Create a test config
         config = {'personal': {'name': 'Test User'}}
-        
+
         # Call the method
         name_prefix, person_name = self.generator._get_name_prefix(config)
         
@@ -106,6 +106,17 @@ class TestDocumentGenerator:
         assert person_name == 'Test User'
         assert name_prefix == 'test_user_'
         self.generator.document.format_name_for_filename.assert_called_once_with('Test User')
+
+    def test_get_name_prefix_with_job(self):
+        """Test name prefix when a job file is provided."""
+        config = {'personal': {'name': 'Test User'}}
+
+        # Add job argument to factory args
+        self.mock_factory.args['job'] = 'jobs/example_job.txt'
+
+        name_prefix, _ = self.generator._get_name_prefix(config)
+
+        assert name_prefix == 'test_user_example_job_'
 
     def test_prepare_generation(self):
         """Test preparing generation elements."""
@@ -135,6 +146,23 @@ class TestDocumentGenerator:
         assert result['generate_html'] is True
         assert result['name_prefix'] == 'test_user_'
         assert result['css_path'] == Path('output/style.css')
+
+    def test_prepare_generation_with_job(self):
+        """Prepare generation elements when job file is provided."""
+        self.mock_file_service.ensure_directory.return_value = Path('output')
+
+        mock_career = MagicMock()
+        mock_career.get_data.return_value = {'personal': {'name': 'Test User'}}
+
+        self.mock_file_service.copy_css.return_value = Path('output/style.css')
+
+        args = {'html': False}
+
+        self.mock_factory.args['job'] = 'jobs/example_job.txt'
+
+        result = self.generator.prepare_generation(args, mock_career)
+
+        assert result['name_prefix'] == 'test_user_example_job_'
 
     def test_generate_with_html(self):
         """Test generating documents with HTML option enabled."""
