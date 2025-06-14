@@ -1,0 +1,34 @@
+About the job
+About The Team
+
+The Innovators team is a powerhouse revolutionizing how we engage customers through groundbreaking applications. As an incubator, we amplify the impact of Sales, Tech, Enablement, and FinOps by deploying our technology at scale. This team applies advanced capabilities to real interactions — reshaping conversations, learning from every request, and finding new ways to show off our technology.
+
+About The Role
+
+As a product engineer, you’ll help us meet the world at scale. You’ll partner closely with go-to-market teams to understand their workflows, identify leverage points, and ship novel solutions using our API platform. You’ll move quickly from prototype to production, and your work will directly shape how customers experience our technology in the field. This role is ideal for engineers who want to be close to users, own end-to-end outcomes, and help define entirely new categories of enterprise software.
+
+This role is based in NYC. We use a hybrid work model of 3 days in the office per week and offer relocation assistance to new employees.
+
+In This Role, You Will
+
+Build high-impact applications and tools that accelerate our go-to-market efforts
+Work across the full product lifecycle for GTM: prototype, iterate, ship, and maintain
+Embed with Sales, Technical Success, and Revenue Operations to identify user needs and build for them
+Apply our models in novel ways to solve real-world customer and internal workflow problems
+Translate learnings into feedback for Applied and Research teams to inform product development
+
+You’ll Thrive In This Role If You
+
+Have 4+ years of experience as a software/ML/product engineer working on user-facing systems
+Former founder, or early engineer at a startup who built a product from scratch is a plus
+Have deep experience building and scaling backend systems, including designing robust APIs, working with streaming and asynchronous architectures, and applying best practices in observability, testing, and performance monitoring; are comfortable with database design and technologies across both SQL and NoSQL systems
+Have built or prototyped LLM-powered workflows using the API (or similar)
+Take initiative, move quickly, and operate with a strong sense of ownership
+Enjoy working closely with end users and shaping 0→1 products
+Are collaborative, curious, and motivated to make an outsized impact at the frontier of AI
+
+About Us
+
+We're an AI research and deployment company dedicated to ensuring that general-purpose artificial intelligence benefits all of humanity. We push the boundaries of the capabilities of AI systems and seek to safely deploy them to the world through our products. AI is an extremely powerful tool that must be created with safety and human needs at its core, and to achieve our mission, we must encompass and value the many different perspectives, voices, and experiences that form the full spectrum of humanity.
+
+We are an equal opportunity employer, and we do not discriminate on the basis of race, religion, color, national origin, sex, sexual orientation, age, veteran status, disability, genetic information, or other applicable legally protected characteristic.

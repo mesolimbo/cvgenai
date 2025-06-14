@@ -29,11 +29,11 @@ class ConfigManager(IConfigLoader):
             dict: Loaded configuration
         """
         # Raise an error if the file is outside the current directory
-        current_dir = os.path.abspath(os.getcwd())
+        current_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         config_full_path = os.path.abspath(config_path)
 
         if not config_full_path.startswith(current_dir):
-            raise ValueError("Configuration file path must be within the current directory.")
+            raise ValueError(f"Configuration file path must be within the project directory: {current_dir}")
 
         with open(config_full_path, 'rb') as f:
             # Read content of file as string
