@@ -23,7 +23,7 @@ class TestCareer:
         career_data = career.load(content_path)
         
         # Assert
-        mock_config_manager.load.assert_called_once_with(content_path)
+        mock_config_manager.load.assert_called_once_with(content_path, None)
         assert career_data == {"personal": {"name": "Test User"}}
 
     @staticmethod

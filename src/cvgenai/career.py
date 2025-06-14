@@ -16,16 +16,17 @@ class Career:
         self._config_manager = config_manager
         self._career_data = None
     
-    def load(self, content_path: str) -> Dict[str, Any]:
+    def load(self, content_path: str, customize_lambda=None) -> Dict[str, Any]:
         """Load career data from the content file.
         
         Args:
             content_path: Path to the content file (usually a TOML file)
+            customize_lambda: Optional lambda function to modify the content before loading
             
         Returns:
             dict: Loaded career data configuration
         """
-        self._career_data = self._config_manager.load(content_path)
+        self._career_data = self._config_manager.load(content_path, customize_lambda)
         return self._career_data
     
     def get_data(self) -> Dict[str, Any]:
