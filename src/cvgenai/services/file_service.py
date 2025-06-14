@@ -34,3 +34,35 @@ class FileService:
         css_dest = output_dir / css_source.name
         shutil.copy2(css_source, css_dest)
         return css_dest
+
+    @staticmethod
+    def safe_read(file_path: str) -> str:
+        """Safely read a file ensuring it resides in the project directory.
+
+        Parameters
+        ----------
+        file_path:
+            Path to the file to read.
+
+        Returns
+        -------
+        str
+            Contents of the file as text.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file does not exist.
+        ValueError
+            If the file path is outside the project directory.
+        """
+        project_root = Path(__file__).resolve().parents[2]
+        abs_path = Path(file_path).resolve()
+
+        if not str(abs_path).startswith(str(project_root)):
+            raise ValueError(
+                f"File path must be within the project directory: {project_root}"
+            )
+
+        with abs_path.open('r', encoding='utf-8') as f:
+            return f.read()

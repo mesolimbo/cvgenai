@@ -2,6 +2,7 @@
 
 import tempfile
 from pathlib import Path
+import pytest
 from cvgenai.services.file_service import FileService
 
 
@@ -81,3 +82,30 @@ class TestFileService:
             # Check that no file was copied and None was returned
             assert result is None
             assert not (output_dir / "style.css").exists()
+
+    @staticmethod
+    def test_safe_read():
+        """Test reading a file safely within the project root."""
+        project_root = Path(__file__).resolve().parents[3] / "src"
+        test_file = project_root / "sample_safe_read.txt"
+        test_file.write_text("hello")
+
+        try:
+            result = FileService.safe_read(str(test_file))
+            assert result == "hello"
+        finally:
+            test_file.unlink()
+
+    @staticmethod
+    def test_safe_read_outside_root(tmp_path):
+        """Test safe_read raises ValueError for paths outside the project root."""
+        # Create file outside project root using tmp_path
+        file_path = tmp_path / 'outside.txt'
+        file_path.write_text('oops')
+
+        try:
+            with pytest.raises(ValueError):
+                FileService.safe_read(str(file_path))
+        finally:
+            file_path.unlink()
+

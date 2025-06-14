@@ -5,9 +5,10 @@
 # Service implementations to use
 config_manager = "config.ConfigManager"
 template_renderer = "templating.renderer.Jinja2Renderer"
-pdf_service = "services.pdf_service.PDFService" 
+pdf_service = "services.pdf_service.PDFService"
 html_service = "services.html_service.HTMLService"
 file_service = "services.file_service.FileService"
+customizer_service = "services.customizer_service.CustomizerService"
 
 [cli]
 # Command line argument definitions
@@ -22,6 +23,10 @@ name = "html"
 flag = true
 help = "Generate HTML versions of files"
 default = false
+
+[[cli.args]]
+name = "job"
+help = "Path to the job description file"
 
 [documents]
 # Document types and their generators

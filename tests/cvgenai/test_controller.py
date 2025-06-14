@@ -1,13 +1,11 @@
 """Tests for the controller module."""
-
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 
 from cvgenai.controller import CVGenController
 
 
 class TestCVGenController:
     """Test cases for the CVGenController class."""
-
     @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
@@ -20,7 +18,14 @@ class TestCVGenController:
         mock_factory.args = {'content': 'test_resume.toml'}
         
         mock_config_manager = MagicMock()
-        mock_factory.get_service.return_value = mock_config_manager
+        mock_file_service = MagicMock()
+        mock_file_service.safe_read.return_value = 'resume_data'
+        mock_customizer = MagicMock()
+        mock_factory.get_service.side_effect = [
+            mock_config_manager,
+            mock_file_service,
+            mock_customizer,
+        ]
         
         mock_career = MagicMock()
         mock_career_class.return_value = mock_career
@@ -32,7 +37,8 @@ class TestCVGenController:
         mock_load_dotenv.assert_called_once()
         mock_factory_class.assert_called_once()
         mock_career_class.assert_called_once_with(mock_config_manager)
-        mock_career.load.assert_called_once_with('test_resume.toml')
+        mock_file_service.safe_read.assert_any_call('test_resume.toml')
+        mock_career.load.assert_called_once_with('resume_data', None)
         
         assert controller.factory == mock_factory
         assert controller.career == mock_career
@@ -61,9 +67,16 @@ class TestCVGenController:
         controller.factory = MagicMock()
         controller.factory.app_config = {'cli': {'content_path_arg': 'content'}}
         controller.factory.args = {'content': 'test_resume.toml'}
-        
+
         mock_config_manager = MagicMock()
-        controller.factory.get_service.return_value = mock_config_manager
+        mock_file_service = MagicMock()
+        mock_file_service.safe_read.return_value = 'resume_data'
+        mock_customizer = MagicMock()
+        controller.factory.get_service.side_effect = [
+            mock_config_manager,
+            mock_file_service,
+            mock_customizer,
+        ]
         
         mock_career = MagicMock()
         mock_career_class.return_value = mock_career
@@ -72,9 +85,14 @@ class TestCVGenController:
         result = controller._initialize_career()
         
         # Verify career initialization
-        controller.factory.get_service.assert_called_with('config_manager')
+        controller.factory.get_service.assert_has_calls([
+            call('config_manager'),
+            call('file_service'),
+            call('customizer_service'),
+        ])
+        mock_file_service.safe_read.assert_any_call('test_resume.toml')
         mock_career_class.assert_called_with(mock_config_manager)
-        mock_career.load.assert_called_with('test_resume.toml')
+        mock_career.load.assert_called_with('resume_data', None)
         assert result == mock_career
 
     @staticmethod

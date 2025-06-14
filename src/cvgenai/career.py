@@ -1,12 +1,10 @@
 """Career data management for CV Generation."""
-
 from typing import Dict, Any
 
 from cvgenai.config import IConfigLoader
 
 class Career:
     """Class for managing career data and configuration."""
-    
     def __init__(self, config_manager: IConfigLoader):
         """Initialize the career manager.
         

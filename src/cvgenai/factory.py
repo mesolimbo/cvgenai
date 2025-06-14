@@ -1,5 +1,4 @@
 """Factory module for creating service and generator instances."""
-
 import importlib
 
 import os
@@ -16,7 +15,6 @@ T = TypeVar('T')
 
 class Factory:
     """Factory for creating service and generator instances based on configuration."""
-    
     def __init__(self, config_path: Optional[str] = None):
         """
         Initialize factory with application config.
