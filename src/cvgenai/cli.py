@@ -1,6 +1,6 @@
 """Command-line interface for CV Gen AI."""
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from cvgenai.controller import CVGenController
 
@@ -13,6 +13,24 @@ class CLI:
         self.controller = CVGenController()
 
     @staticmethod
+    def find_generator_config(generator_name: str, enabled_generators: List[Dict]) -> Optional[Dict]:
+        """Find the configuration for a given generator name.
+
+        Args:
+            generator_name: The name of the generator to find.
+            enabled_generators: List of enabled generator configurations.
+
+        Returns:
+            The configuration dictionary for the generator, or None if not found.
+        """
+        for gen in enabled_generators:
+            if gen['name'] == generator_name:
+                return gen
+
+        return None
+
+
+    @staticmethod
     def display_generation_options(generators_to_run: List[str], enabled_generators: List[Dict], content_path: str) -> None:
         """Display information about what will be generated.
         
@@ -23,50 +41,41 @@ class CLI:
         """
         print("Generating documents with the following options:")
         for generator_name in generators_to_run:
-            generator_config = next((gen for gen in enabled_generators if gen['name'] == generator_name), None)
+            generator_config = CLI.find_generator_config(generator_name, enabled_generators)
             if generator_config:
                 print(f"- {generator_config['description']}")
 
         print(f"Using content from: {content_path}")
         print("---")
 
-    @staticmethod
-    def display_errors(errors: List[str]) -> None:
-        """Display any errors that occurred during generation.
-        
-        Args:
-            errors: List of error messages
-        """
-        if errors:
-            print("\nErrors occurred during generation:")
-            for error in errors:
-                print(f"- {error}")
-        else:
-            print("\nGeneration completed successfully!")
+    def _prepare_and_generate(self):
+        """Prepare the generation process and run it."""
+        # Get generation information
+        generators_to_run, enabled_generators, content_path = self.controller.get_generation_info()
+
+        # Display what will be generated
+        self.display_generation_options(generators_to_run, enabled_generators, content_path)
+
+        # Generate documents
+        return self.controller.generate_documents()
 
     def run(self) -> None:
         """Run the CV generation process."""
         try:
-            # Initialize the controller
-            self.controller.initialize()
-
-            # Get generation information
-            generators_to_run, enabled_generators, content_path = self.controller.get_generation_info()
-
-            # Display what will be generated
-            self.display_generation_options(generators_to_run, enabled_generators, content_path)
-
-            # Generate documents
-            errors = self.controller.generate_documents()
+            errors = self._prepare_and_generate()
 
             # Display results
-            self.display_errors(errors)
+            if errors:
+                print("\nErrors occurred during generation:")
+                for error in errors:
+                    print(f"- {error}")
+            else:
+                print("\nGeneration completed successfully!")
 
         except Exception as e:
             print(f"Fatal error: {e}")
-            return
 
 
 if __name__ == '__main__':
-    cli = CLI()
-    cli.run()
+    CLI().run()
+

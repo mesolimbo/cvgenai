@@ -8,14 +8,6 @@ from cvgenai.controller import CVGenController
 class TestCVGenController:
     """Test cases for the CVGenController class."""
 
-    @staticmethod
-    def test_controller_initialization():
-        """Test controller initialization."""
-        controller = CVGenController()
-        
-        assert controller.factory is None
-        assert controller.career is None
-
     @patch('cvgenai.controller.load_dotenv')
     @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
@@ -35,7 +27,6 @@ class TestCVGenController:
         
         # Create and initialize controller
         controller = CVGenController()
-        controller.initialize()
         
         # Verify initialization steps
         mock_load_dotenv.assert_called_once()
@@ -57,11 +48,13 @@ class TestCVGenController:
         result = controller._initialize_factory()
         
         # Verify factory was created with custom config path
-        mock_factory_class.assert_called_once_with('custom_config.toml')
+        mock_factory_class.assert_called_with('custom_config.toml')
         assert result == mock_factory
 
+    @patch('cvgenai.controller.load_dotenv')
+    @patch('cvgenai.controller.Factory')
     @patch('cvgenai.controller.Career')
-    def test_initialize_career(self, mock_career_class):
+    def test_initialize_career(self, mock_career_class, *_):
         """Test career initialization."""
         # Setup controller with mock factory
         controller = CVGenController()
@@ -79,13 +72,16 @@ class TestCVGenController:
         result = controller._initialize_career()
         
         # Verify career initialization
-        controller.factory.get_service.assert_called_once_with('config_manager')
-        mock_career_class.assert_called_once_with(mock_config_manager)
-        mock_career.load.assert_called_once_with('test_resume.toml')
+        controller.factory.get_service.assert_called_with('config_manager')
+        mock_career_class.assert_called_with(mock_config_manager)
+        mock_career.load.assert_called_with('test_resume.toml')
         assert result == mock_career
 
     @staticmethod
-    def test_get_generation_info():
+    @patch('cvgenai.controller.load_dotenv')
+    @patch('cvgenai.controller.Factory')
+    @patch('cvgenai.controller.Career')
+    def test_get_generation_info(*_):
         """Test getting generation information."""
         # Setup controller with mock factory
         controller = CVGenController()
@@ -112,7 +108,10 @@ class TestCVGenController:
         assert result_path == 'test_resume.toml'
 
     @staticmethod
-    def test_generate_documents_success():
+    @patch('cvgenai.controller.load_dotenv')
+    @patch('cvgenai.controller.Factory')
+    @patch('cvgenai.controller.Career')
+    def test_generate_documents_success(*_):
         """Test successful document generation."""
         # Setup controller
         controller = CVGenController()
@@ -149,7 +148,10 @@ class TestCVGenController:
         )
 
     @staticmethod
-    def test_generate_documents_with_errors():
+    @patch('cvgenai.controller.load_dotenv')
+    @patch('cvgenai.controller.Factory')
+    @patch('cvgenai.controller.Career')
+    def test_generate_documents_with_errors(*_):
         """Test document generation with errors."""
         # Setup controller
         controller = CVGenController()

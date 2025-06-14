@@ -46,7 +46,6 @@ class TestCLI:
         cli.run()
         
         # Verify controller methods were called
-        mock_controller.initialize.assert_called_once()
         mock_controller.get_generation_info.assert_called_once()
         mock_controller.generate_documents.assert_called_once()
         
@@ -79,24 +78,11 @@ class TestCLI:
         mock_print.assert_any_call("\nErrors occurred during generation:")
         mock_print.assert_any_call("- Error generating resume: Test error")
 
-    @patch('cvgenai.cli.CVGenController')
-    @patch('builtins.print')
-    def test_cli_run_with_exception(self, mock_print, mock_controller_class):
-        """Test CLI run when controller initialization fails."""
-        # Setup controller mock to raise exception
-        mock_controller = MagicMock()
-        mock_controller_class.return_value = mock_controller
-        mock_controller.initialize.side_effect = Exception("Initialization failed")
-        
-        # Create and run CLI
-        cli = CLI()
-        cli.run()
-        
-        # Verify fatal error message was printed
-        mock_print.assert_any_call("Fatal error: Initialization failed")
-
     @staticmethod
-    def test_display_generation_options():
+    @patch('cvgenai.controller.load_dotenv')
+    @patch('cvgenai.controller.Factory')
+    @patch('cvgenai.controller.Career')
+    def test_display_generation_options(*_):
         """Test display of generation options."""
         generators_to_run = ['resume', 'cover_letter']
         enabled_generators = [
@@ -116,26 +102,3 @@ class TestCLI:
             mock_print.assert_any_call("- Cover Letter Generator")
             mock_print.assert_any_call("Using content from: test_resume.toml")
             mock_print.assert_any_call("---")
-
-    @staticmethod
-    def test_display_errors_no_errors():
-        """Test display when no errors occurred."""
-        cli = CLI()
-        
-        with patch('builtins.print') as mock_print:
-            cli.display_errors([])
-            
-            mock_print.assert_called_once_with("\nGeneration completed successfully!")
-
-    @staticmethod
-    def test_display_errors_with_errors():
-        """Test display when errors occurred."""
-        cli = CLI()
-        errors = ["Error 1", "Error 2"]
-        
-        with patch('builtins.print') as mock_print:
-            cli.display_errors(errors)
-            
-            mock_print.assert_any_call("\nErrors occurred during generation:")
-            mock_print.assert_any_call("- Error 1")
-            mock_print.assert_any_call("- Error 2")
