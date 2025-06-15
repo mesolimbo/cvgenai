@@ -119,7 +119,7 @@ run.sh --content my-other-resume.toml
   - **`document.py`**: Abstractions for resume and cover letter documents
   - **`config.py`**: TOML configuration loader
   - **`services/`**: File, HTML, PDF and customization services
-  - **`templating/`**: Template rendering helpers
+  - **`templating/`**: Jinja template rendering helper
 - **`templates/`**: Contains HTML templates and CSS styles
   - `cover_letter_template.html`: Template for cover letters
   - `resume_page1_template.html`: Template for resume page 1
