@@ -37,6 +37,8 @@ class CustomizerService:
             "You must preserve all the original whitespace and empty lines in the document. "
             "Please do not wrap the content in ```toml and ``` and that will not be parseable. "
             "Under no circumstance may you change job titles or dates, as that information must remain a valid verifiable reference. "
+            "The [skills] section is provided for your reference only, so that you may better tailor the content of the cover letter and resume. "
+            "Be sure to identify the company name and open role in the JOB DESCRIPTION section, so that you may reference them in the cover letter body (do not change the recepient however). "
         )
         self.model = model
 
@@ -95,6 +97,6 @@ Please provide a customized version of this resume that:
 4. Maintains approximately the same length for each section
 5. Preserves the original structure and format
 
-Return only the complete TOML document with no additional explanation.
+Return only the complete TOML document with no additional explanation or non-TOML mark-up.
 """
         return prompt
