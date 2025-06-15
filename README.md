@@ -1,4 +1,4 @@
-# CV Generator AI 💻
+# CVgenAI 💻✨📄
 
 A tool for generating professional resumes and cover letters in PDF and HTML
 formats.  When an `OPENAI_API_KEY` 🔑 environment variable is present the resume
@@ -140,7 +140,7 @@ run.sh --content my-other-resume.toml
 
 You can modify the templates in the `templates/` directory to customize the appearance of your resume and cover letter. The templates use Jinja2 syntax.
 
-### Styles 🎨
+### Styles 🖌️
 
 Edit the `templates/style.css` file to customize the styling of your documents.
 
