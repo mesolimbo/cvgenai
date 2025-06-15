@@ -1,3 +1,5 @@
+![CVgenAI logo](images/logo/logo.png)
+
 # CVgenAI 💻✨📄
 
 A tool for generating professional resumes and cover letters in PDF and HTML
@@ -104,8 +106,8 @@ run.sh --content my-other-resume.toml
 
 ## Project Structure 🗂️
 
-![Class Diagram](diagrams/Classes%20-%20cvgenai.svg)
-[Download PDF](diagrams/Classes%20-%20cvgenai.pdf)
+![Class Diagram](images/diagrams/Classes%20-%20cvgenai.svg)
+[Download achitecture PDF](images/diagrams/Classes%20-%20cvgenai.pdf)
 
 - **`resume.toml`**: Your personal resume and cover letter information
 - **`src/cvgenai/`**: Main package
