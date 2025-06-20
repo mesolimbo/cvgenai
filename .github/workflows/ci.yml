@@ -72,7 +72,8 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
 
       - name: Show release details
-        run: echo "Version to release: ${{ steps.get_version.outputs.version }}"
+        run: |
+          echo "Version to release: ${{ steps.get_version.outputs.version }}"
 
       - name: Create tag
         if: github.event_name == 'push'
