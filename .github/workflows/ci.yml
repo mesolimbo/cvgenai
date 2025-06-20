@@ -68,11 +68,7 @@ jobs:
       - name: Determine version
         id: get_version
         run: |
-          ver=$(python - <<'PY'
-import tomllib, pathlib
-print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])
-PY
-          )
+          ver=$(python .github/scripts/get_version.py)
           echo "version=$ver" >> "$GITHUB_OUTPUT"
 
       - name: Show release details
