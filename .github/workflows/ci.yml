@@ -12,113 +12,82 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-        
-    - name: Install pipenv
-      run: |
-        python -m pip install --upgrade pip
-        pip install pipenv
-        
-    - name: Cache pipenv virtualenv
-      uses: actions/cache@v4
-      with:
-        path: ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pipenv-
-          
-    - name: Install dependencies
-      run: |
-        pipenv install --dev
-        # Explicitly install pytest and pytest-cov to ensure they're available
-        pipenv install pytest pytest-cov
-        
-    - name: Verify pytest installation
-      run: |
-        pipenv run python -m pytest --version
-        
-    - name: Run tests
-      run: |
-        chmod +x ./test.sh
-        # Set PYTHONPATH to ensure modules can be found
-        export PYTHONPATH=$PYTHONPATH:$(pwd)
-        # Run test script with verbose output
-        ./test.sh
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pipenv
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Cache pipenv virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-
+
+      - name: Install dependencies
+        run: |
+          pipenv install --dev
+          pipenv install pytest pytest-cov
+
+      - name: Verify pytest installation
+        run: |
+          pipenv run python -m pytest --version
+
+      - name: Run tests
+        run: |
+          chmod +x ./test.sh
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          ./test.sh
 
   release:
     needs: test
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-  
+    permissions:
+      contents: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-  
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-  
-    - name: Install tooling
-      run: |
-        python -m pip install packaging
-  
-    - name: Read project version
-      id: project_version
-      run: |
-        ver=$(python - <<'EOF'
-          import tomllib, pathlib
-          data = tomllib.loads(pathlib.Path('pyproject.toml').read_text())
-          print(data['project']['version'])
-        EOF
-        )
-        echo "version=$ver" >> "$GITHUB_OUTPUT"
-  
-    - name: Get latest tag
-      id: latest_tag
-      run: |
-        git fetch --tags
-        tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
-        echo "tag=$tag" >> "$GITHUB_OUTPUT"
-  
-    - name: Check if release needed
-      id: check
-      env:
-        PY_VERSION: ${{ steps.project_version.outputs.version }}
-        LATEST_TAG: ${{ steps.latest_tag.outputs.tag }}
-      run: |
-        python - <<'EOF' >> "$GITHUB_OUTPUT"
-          import os
-          from packaging.version import Version
-          py = os.environ['PY_VERSION']
-          tag = os.environ.get('LATEST_TAG','')
-          tag_ver = tag[1:] if tag.startswith('v') else tag
-          create = (not tag) or Version(py) > Version(tag_ver)
-          print(f"create={str(create).lower()}")
-        EOF
-  
-    - name: Create tag
-      if: steps.check.outputs.create == 'true'
-      run: |
-        git config user.name "$GITHUB_ACTOR"
-        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-        git tag "v${{ steps.project_version.outputs.version }}"
-        git push origin "v${{ steps.project_version.outputs.version }}"
-  
-    - name: Create GitHub Release
-      if: steps.check.outputs.create == 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: "v${{ steps.project_version.outputs.version }}"
-        name: ${{ steps.project_version.outputs.version }}
-        generate_release_notes: true
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Determine version
+        id: get_version
+        run: |
+          ver=$(python .github/scripts/get_version.py)
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+
+      - name: Show release details
+        run: |
+          echo "Version to release: ${{ steps.get_version.outputs.version }}"
+
+      - name: Create tag
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag "v${{ steps.get_version.outputs.version }}"
+          git push origin "v${{ steps.get_version.outputs.version }}"
+
+      - name: Create GitHub release
+        if: github.event_name == 'push'
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ steps.get_version.outputs.version }}"
+          release_name: "v${{ steps.get_version.outputs.version }}"
