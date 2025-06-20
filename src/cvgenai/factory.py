@@ -163,8 +163,9 @@ class Factory:
         any_generator_specified = False
         for generator in all_generators:
             arg_name = generator.get('arg')
-            if arg_name and hasattr(self.args, arg_name.replace('-', '_')):
-                arg_value = getattr(self.args, arg_name.replace('-', '_'))
+            if arg_name:
+                arg_key = arg_name.replace('-', '_')
+                arg_value = self.args.get(arg_key)
                 if arg_value:
                     generators_to_run.append(generator['name'])
                     any_generator_specified = True

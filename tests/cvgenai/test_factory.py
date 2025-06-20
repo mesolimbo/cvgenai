@@ -259,9 +259,37 @@ class TestFactory:
 
         # Get generators to run
         generators = factory.get_generators_to_run()
-        
+
         # Verify that all enabled generators are included
         assert set(generators) == {'resume', 'cover-letter'}
+
+    @staticmethod
+    @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
+    @patch('cvgenai.factory.Factory._parse_args', return_value={'resume': True, 'cover_letter': False})
+    def test_get_generators_to_run_resume_only(_, __):
+        """When only the resume flag is set only that generator should run."""
+        from cvgenai.factory import Factory
+        factory = Factory()
+        factory.app_config = {
+            'documents': {
+                'generators': [
+                    {
+                        'name': 'resume',
+                        'enabled': True,
+                        'arg': 'resume',
+                    },
+                    {
+                        'name': 'cover_letter',
+                        'enabled': True,
+                        'arg': 'cover-letter',
+                    },
+                ]
+            }
+        }
+
+        generators = factory.get_generators_to_run()
+
+        assert generators == ['resume']
 
     @staticmethod
     @patch('cvgenai.factory.Factory._create_instance_from_path', return_value=MagicMock())
