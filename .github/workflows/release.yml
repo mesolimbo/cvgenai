@@ -7,33 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  preview:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Determine version
-        id: get_version
-        run: |
-          ver=$(python - <<'PY'
-          import tomllib, pathlib
-          data = tomllib.loads(pathlib.Path('pyproject.toml').read_text())
-          print(data['project']['version'])
-          PY
-          )
-          echo "version=$ver" >> "$GITHUB_OUTPUT"
-      - name: Show release details
-        run: echo "Would create release v${{ steps.get_version.outputs.version }}"
-
   release:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -56,7 +30,11 @@ jobs:
           PY
           )
           echo "version=$ver" >> "$GITHUB_OUTPUT"
+      - name: Show release details
+        run: |
+          echo "Version to release: ${{ steps.get_version.outputs.version }}"
       - name: Create tag
+        if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -65,6 +43,7 @@ jobs:
           git tag "v${{ steps.get_version.outputs.version }}"
           git push origin "v${{ steps.get_version.outputs.version }}"
       - name: Create GitHub release
+        if: github.event_name == 'push'
         uses: actions/create-release@v1
         with:
           tag_name: "v${{ steps.get_version.outputs.version }}"
