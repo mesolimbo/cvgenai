@@ -77,10 +77,10 @@ jobs:
       id: project_version
       run: |
         ver=$(python - <<'EOF'
-import tomllib, pathlib
-data = tomllib.loads(pathlib.Path('pyproject.toml').read_text())
-print(data['project']['version'])
-EOF
+          import tomllib, pathlib
+          data = tomllib.loads(pathlib.Path('pyproject.toml').read_text())
+          print(data['project']['version'])
+        EOF
         )
         echo "version=$ver" >> "$GITHUB_OUTPUT"
   
@@ -98,14 +98,14 @@ EOF
         LATEST_TAG: ${{ steps.latest_tag.outputs.tag }}
       run: |
         python - <<'EOF' >> "$GITHUB_OUTPUT"
-import os
-from packaging.version import Version
-py = os.environ['PY_VERSION']
-tag = os.environ.get('LATEST_TAG','')
-tag_ver = tag[1:] if tag.startswith('v') else tag
-create = (not tag) or Version(py) > Version(tag_ver)
-print(f"create={str(create).lower()}")
-EOF
+          import os
+          from packaging.version import Version
+          py = os.environ['PY_VERSION']
+          tag = os.environ.get('LATEST_TAG','')
+          tag_ver = tag[1:] if tag.startswith('v') else tag
+          create = (not tag) or Version(py) > Version(tag_ver)
+          print(f"create={str(create).lower()}")
+        EOF
   
     - name: Create tag
       if: steps.check.outputs.create == 'true'
