@@ -8,16 +8,17 @@ def main():
         print("Usage: check_tag_exists.py <tag>", file=sys.stderr)
         sys.exit(1)
     tag = sys.argv[1]
-    result = subprocess.run([
-        "git",
-        "rev-parse",
-        "--quiet",
-        "--verify",
-        f"refs/tags/{tag}"
-    ])
-    if result.returncode == 0:
+
+    try:
+        subprocess.run([
+            "/usr/bin/git",
+            "rev-parse",
+            "--quiet",
+            "--verify",
+            f"refs/tags/{tag}"
+        ], check=True)
         print("true")
-    else:
+    except subprocess.CalledProcessError:
         print("false")
 
 if __name__ == "__main__":
