@@ -71,12 +71,18 @@ jobs:
           ver=$(python .github/scripts/get_version.py)
           echo "version=$ver" >> "$GITHUB_OUTPUT"
 
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          exists=$(python .github/scripts/check_tag_exists.py "v${{ steps.get_version.outputs.version }}")
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
+
       - name: Show release details
         run: |
           echo "Version to release: ${{ steps.get_version.outputs.version }}"
 
       - name: Create tag
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.check_tag.outputs.exists == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -86,7 +92,7 @@ jobs:
           git push origin "v${{ steps.get_version.outputs.version }}"
 
       - name: Create GitHub release
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.check_tag.outputs.exists == 'false'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
