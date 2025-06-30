@@ -38,13 +38,37 @@
   }
   
   /* Remove padding for print/PDF */
-  @media print {
-    .document,
-    .cover-letter,
-    .resume {
-      padding: 0;
-    }
-  }
+	@media print {
+	  .document,
+	  .cover-letter,
+	  .resume {
+		padding: 0;
+		margin: 0 auto;
+		max-width: 6.5in !important; /* Fit inside printable area */
+		width: 100%;
+	  }
+	  .resume-section ul {
+		list-style: none !important;
+		margin-left: 0 !important;
+		padding-left: 0 !important;
+	  }
+	  .resume-section li {
+		position: relative;
+		padding-left: 1.2em !important;  /* This controls the gap from bullet to text */
+		margin-left: 0 !important;
+	  }
+	  .resume-section li::before {
+		content: '•';
+		position: absolute;
+		left: 0;
+		top: 0;
+		font-size: 1em;
+		line-height: inherit;
+		width: 1.6em;      /* Should match padding-left above */
+		display: inline-block;
+		text-align: center; /* centers bullet in gutter */
+	  }
+	}
   
   /* ============================================
      SHARED HEADER (Cover Letter & Resume)
