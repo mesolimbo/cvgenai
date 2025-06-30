@@ -16,7 +16,7 @@ def main():
             "--quiet",
             "--verify",
             f"refs/tags/{tag}"
-        ], check=True)
+        ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         print("true")
     except subprocess.CalledProcessError:
         print("false")
