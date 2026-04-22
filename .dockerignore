@@ -1,0 +1,13 @@
+.git
+.github
+.venv
+.pytest_cache
+.coverage
+htmlcov
+output
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.idea
+.vscode
