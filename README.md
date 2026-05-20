@@ -9,7 +9,7 @@ OpenAI's API.  Without the key the tool simply renders the provided content.
 
 ## Features ✨
 
-- Generate professional resumes with a consistent, two-page layout
+- Generate professional resumes with a consistent, two-page layouts
 - Generate matching cover letters
 - Produce both PDF and HTML output formats
 - Customize content via TOML resume document
